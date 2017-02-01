@@ -15,7 +15,7 @@ const mapDispatchToProps = (/*dispatch*/) => {
 	}
 }
 
-class Menu extends React.Component {
+class HeaderMenu extends React.Component {
 	componentWillMount () {
 		user.onChange(() => {
 			this.forceUpdate()
@@ -34,7 +34,6 @@ class Menu extends React.Component {
 			return (
 				<div class="navbar-collapse collapse" id="navbar-main">
 					<ul class="nav navbar-nav">
-						/*<li class={isActive('forecasts') ? 'active' : ''}><Link to="forecasts">Forecasts</Link></li>*/
 					</ul>
 					<ul class="nav navbar-nav pull-right">
 						<li class="dropdown">
@@ -76,16 +75,16 @@ class Menu extends React.Component {
 	}
 }
 
-Menu.propTypes = {
+HeaderMenu.propTypes = {
 	location: React.PropTypes.shape({
 		pathname: React.PropTypes.string.isRequired,
 	}).isRequired,
 }
-Menu.contextTypes = {
+HeaderMenu.contextTypes = {
 	router: React.PropTypes.object.isRequired
 }
 
 export default connect(
 	mapStateToProps,
 	mapDispatchToProps
-)(Menu)
+)(HeaderMenu)

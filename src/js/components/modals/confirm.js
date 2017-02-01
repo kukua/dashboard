@@ -26,7 +26,7 @@ Modal.defaultStyles = {
 	}
 }
 
-export default class Confirm extends React.Component {
+class ConfirmModal extends React.Component {
 	render () {
 		var closeLabel = (this.props.closeLabel || 'Close')
 		var confirmLabel = (this.props.confirmLabel || 'Confirm')
@@ -58,7 +58,7 @@ export default class Confirm extends React.Component {
 	}
 }
 
-Confirm.propTypes = {
+ConfirmModal.propTypes = {
 	isOpen: React.PropTypes.bool,
 	title: React.PropTypes.string,
 	onClose: React.PropTypes.func.isRequired,
@@ -67,3 +67,5 @@ Confirm.propTypes = {
 	confirmLabel: React.PropTypes.string,
 	children: React.PropTypes.element,
 }
+
+export default ConfirmModal

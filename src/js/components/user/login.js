@@ -17,7 +17,7 @@ const mapDispatchToProps = (dispatch) => {
 	}
 }
 
-class Login extends React.Component {
+class UserLogin extends React.Component {
 	onSubmit (ev) {
 		ev.preventDefault()
 
@@ -59,15 +59,15 @@ class Login extends React.Component {
 	}
 }
 
-Login.propTypes = {
+UserLogin.propTypes = {
 	onLogin: React.PropTypes.func.isRequired,
 	isFetching: React.PropTypes.bool.isRequired
 }
-Login.contextTypes = {
+UserLogin.contextTypes = {
 	router: React.PropTypes.object.isRequired
 }
 
 export default connect(
 	mapStateToProps,
 	mapDispatchToProps
-)(Login)
+)(UserLogin)

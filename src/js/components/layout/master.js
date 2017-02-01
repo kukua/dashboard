@@ -2,7 +2,7 @@ import React from 'react'
 import Header from '../header/header'
 import Notifications from './notifications'
 
-export default class Master extends React.Component {
+export default class LayoutMaster extends React.Component {
 	render () {
 		return (
 			<div>
@@ -16,7 +16,7 @@ export default class Master extends React.Component {
 	}
 }
 
-Master.propTypes = {
+LayoutMaster.propTypes = {
 	children: React.PropTypes.element,
 	location: React.PropTypes.shape({
 		pathname: React.PropTypes.string.isRequired,
