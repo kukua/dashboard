@@ -1,16 +1,28 @@
 import _ from 'underscore'
-import MeasurementFilter from './MeasurementFilter'
+import MeasurementFilterModel from './MeasurementFilter'
 
 class MeasurementListModel {
 	constructor () {
+		this._requestFilter = null
 		this._filter = null
 		this._columns = []
 		this._values = []
 	}
 
-	setFilter (filter) {
-		if ( ! (filter instanceof MeasurementFilter)) {
+	setRequestFilter (filter) {
+		if ( ! (filter instanceof MeasurementFilterModel)) {
 			throw new Error('Invalid measurement filter model.')
+		}
+
+		this._requestFilter = filter
+		return this
+	}
+	getRequestFilter () {
+		return this._requestFilter
+	}
+	setFilter (filter) {
+		if (typeof filter !== 'object') {
+			throw new Error('Invalid measurement filter object.')
 		}
 
 		this._filter = filter
@@ -48,11 +60,11 @@ class MeasurementListModel {
 	}
 }
 
-MeasurementListModel.createWithData = (data) => {
+MeasurementListModel.create = (data, filter) => {
 	var list = new MeasurementListModel()
-	var filter = MeasurementFilter.createWithData(data.filter)
 
-	list.setFilter(filter)
+	list.setRequestFilter(filter)
+	list.setFilter(data.filter)
 	list.setColumns(data.columns)
 	list.setValues(data.values)
 

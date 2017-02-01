@@ -73,7 +73,7 @@ export default {
 			})
 				.then(checkStatus)
 				.then(parseJSON)
-				.then((data) => MeasurementListModel.createWithData(data))
+				.then((data) => MeasurementListModel.create(data, filter))
 				.then((list) => list.sortValues())
 		}
 	},
