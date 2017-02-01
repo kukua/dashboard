@@ -14,7 +14,7 @@ const mapDispatchToProps = (/*dispatch*/) => {
 	}
 }
 
-class LayoutNotifications extends React.Component {
+class NotificationsLayout extends React.Component {
 	constructor (props) {
 		super(props)
 		this.state = {
@@ -66,14 +66,14 @@ class LayoutNotifications extends React.Component {
 	}
 }
 
-LayoutNotifications.propTypes = {
+NotificationsLayout.propTypes = {
 	errors: React.PropTypes.array
 }
-LayoutNotifications.contextTypes = {
+NotificationsLayout.contextTypes = {
 	router: React.PropTypes.object.isRequired
 }
 
 export default connect(
 	mapStateToProps,
 	mapDispatchToProps
-)(LayoutNotifications)
+)(NotificationsLayout)

@@ -1,16 +1,16 @@
 import _ from 'underscore'
 import React from 'react'
-import Graph from '../widgets/graph'
+import AverageTemperatureGraphWidget from '../widgets/AverageTemperatureGraph'
 
 class DashboardShow extends React.Component {
 	render () {
-		var measurementFilter = null
+		var devices = ['598deeda123941ae', '82891181062246ae']
 
 		return (
 			<div>
 				<h1>{_.humanize(this.props.params.id)}</h1>
 				<div class="row">
-					<Graph rows={2} columns={3} measurementFilter={measurementFilter} />
+					<AverageTemperatureGraphWidget rows={2} columns={3} devices={devices} />
 				</div>
 			</div>
 		)
