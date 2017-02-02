@@ -41,7 +41,7 @@ class DashboardShow extends React.Component {
 				},
 			},
 			{
-				columns: 3,
+				columns: 4,
 				title: 'Maximum wind speed (km/h)',
 				filter: {
 					deviceGroup: 'testGroup1',
@@ -59,7 +59,7 @@ class DashboardShow extends React.Component {
 		Promise.all(widgets.map((config) => {
 			var widget = {}
 			var f = config.filter
-			widget.columns = Math.min(3, config.columns || 3)
+			widget.columns = Math.min(4, config.columns || 4)
 			widget.title = config.title || ''
 
 			return this.props.onFetchByID(f.deviceGroup)
@@ -88,7 +88,23 @@ class DashboardShow extends React.Component {
 	}
 
 	getWidgets () {
-		return this.state.widgets.map((widget, i) => <FilterGraph key={i} rows={2} {...widget} />)
+		var rows = [[]]
+		var columnCount = (row) => _.chain(row)
+			.map((column) => column[0])
+			.reduce((memo, num) => memo + num, 0)
+			.value()
+
+		this.state.widgets.forEach((widget, i) => {
+			var row = rows[rows.length - 1]
+			if (columnCount(row) + widget.columns > 4) {
+				// New row
+				rows.push([])
+				row = rows[rows.length - 1]
+			}
+			row.push([widget.columns, <FilterGraph key={i} rows={2} {...widget} />])
+		})
+
+		return rows.map((columns, i) => <div key={i} class="row">{columns.map((column) => column[1])}</div>)
 	}
 
 	render () {
