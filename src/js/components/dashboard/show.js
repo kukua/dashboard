@@ -16,6 +16,9 @@ class DashboardShow extends React.Component {
 						aggregator: 'avg',
 					},
 				},
+				labels: {
+					'0fafd905191c46ae': 'IHS_ASA_01234',
+				},
 			},
 			{
 				columns: 4,

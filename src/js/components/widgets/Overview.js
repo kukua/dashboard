@@ -35,13 +35,14 @@ class WidgetsOverview extends React.Component {
 		Promise.all(this.props.widgets.map((config) => {
 			var widget = {}
 			var f = config.filter
+			var labels = config.labels || {}
 			widget.columns = Math.min(4, config.columns || 4)
 			widget.title = config.title || ''
 
 			return this.props.onFetchByID(f.deviceGroup)
 				.then((group) => group.getDevices().map((device) => {
 					var filter = new MeasurementFilterModel()
-					filter.setName(device.name)
+					filter.setName(labels[device.id] || device.name)
 					filter.setDevices([device.id])
 					filter.addField(f.field.name, f.field.aggregator)
 					filter.setFrom(from)
