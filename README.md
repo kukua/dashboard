@@ -8,10 +8,8 @@ cd dashboard/
 cp src/js/config.js.example src/js/config.js
 chmod 600 src/js/config.js
 
-sudo npm install -g grunt-cli
 npm install
-grunt copy
-grunt build
+npm start
 ```
 
 ## License
