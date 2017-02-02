@@ -10,7 +10,7 @@ export default {
 			var auth = new Buffer(email + ':' + password)
 				.toString('base64')
 
-			return fetch(config.apiUrl + '/users/login', {
+			return fetch(config.apiUrl + '/users/login?includes=config,groups', {
 				headers: {
 					'Authorization': 'Basic ' + auth,
 					'Accept': 'application/json',

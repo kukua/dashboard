@@ -1,45 +1,34 @@
 import _ from 'underscore'
 import React from 'react'
 import moment from 'moment-timezone'
+import { instance as user } from '../../lib/user'
+import NoMatch from '../noMatch'
 import WidgetsOverview from '../widgets/Overview'
 
 class DashboardShow extends React.Component {
+	getDashboard () {
+		var config = (user.get('config') || {})
+		var dashboards = (config.dashboards && config.dashboards.value || [])
+		var id = this.props.params.id
+		return _.find(dashboards, (dashboard) => dashboard.id === id)
+	}
+
 	render () {
-		var widgets = [
-			{
-				columns: 3,
-				title: 'Average temperature (°C)',
-				filter: {
-					deviceGroup: 'testGroup1',
-					field: {
-						name: 'temp',
-						aggregator: 'avg',
-					},
-				},
-				labels: {
-					'0fafd905191c46ae': 'IHS_ASA_01234',
-				},
-			},
-			{
-				columns: 4,
-				title: 'Maximum wind speed (km/h)',
-				filter: {
-					deviceGroup: 'testGroup1',
-					field: {
-						name: 'windSpeed',
-						aggregator: 'max',
-					},
-				},
-			},
-		]
-		var from = moment.utc('2017-01-01T00:00:00Z')
-		var to = moment.utc('2017-01-31T23:59:59Z')
-		var interval = '1h'
+		var dashboard = this.getDashboard()
+
+		if ( ! dashboard) return (<NoMatch />)
+
+		var config = {
+			widgets: (dashboard.widgets || []),
+			from: moment.utc(dashboard.from),
+			to: moment.utc(dashboard.to),
+			interval: dashboard.interval,
+		}
 
 		return (
 			<div>
-				<h1>{_.humanize(this.props.params.id)} dashboard</h1>
-				<WidgetsOverview widgets={widgets} from={from} to={to} interval={interval} />
+				<h1>{dashboard.name}</h1>
+				<WidgetsOverview {...config} />
 			</div>
 		)
 	}

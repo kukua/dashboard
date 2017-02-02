@@ -39,7 +39,7 @@ class WidgetsOverview extends React.Component {
 			widget.columns = Math.min(4, config.columns || 4)
 			widget.title = config.title || ''
 
-			return this.props.onFetchByID(f.deviceGroup)
+			return this.props.onFetchByID(f.device_group)
 				.then((group) => group.getDevices().map((device) => {
 					var filter = new MeasurementFilterModel()
 					filter.setName(labels[device.id] || device.name)
