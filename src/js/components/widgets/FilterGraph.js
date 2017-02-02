@@ -35,8 +35,8 @@ class FilterGraphWidget extends Graph {
 		this.loadData()
 	}
 
-	getYAxisTitle () {
-		return this.props.title
+	getYAxisLabel () {
+		return this.props.label
 	}
 	getSeries () {
 		var lists = this.state.lists
@@ -66,9 +66,7 @@ class FilterGraphWidget extends Graph {
 
 FilterGraphWidget.propTypes = {
 	onFetchByFilter: React.PropTypes.func.isRequired,
-	rows: React.PropTypes.number.isRequired,
-	columns: React.PropTypes.number.isRequired,
-	title: React.PropTypes.string,
+	label: React.PropTypes.string,
 	filters: React.PropTypes.arrayOf(React.PropTypes.instanceOf(MeasurementFilterModel)).isRequired,
 }
 

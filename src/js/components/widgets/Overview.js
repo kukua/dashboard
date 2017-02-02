@@ -37,7 +37,7 @@ class WidgetsOverview extends React.Component {
 			var f = config.filter
 			var labels = config.labels || {}
 			widget.columns = Math.min(4, config.columns || 4)
-			widget.title = config.title || ''
+			widget.label = config.label || ''
 
 			return this.props.onFetchByID(f.device_group)
 				.then((group) => group.getDevices().map((device) => {
@@ -78,7 +78,16 @@ class WidgetsOverview extends React.Component {
 				rows.push([])
 				row = rows[rows.length - 1]
 			}
-			row.push([widget.columns, <FilterGraph key={i} rows={2} {...widget} />])
+
+			var widthClass = 'col-md-' + Math.max(1, Math.min(12, widget.columns * 3))
+			var height = 400
+			var Widget = (
+				<div key={i} class={widthClass} style={{ height }}>
+					<FilterGraph {...widget} />
+				</div>
+			)
+
+			row.push([widget.columns, Widget])
 		})
 
 		return rows.map((columns, i) => <div key={i} class="row">{columns.map((column) => column[1])}</div>)
@@ -95,7 +104,6 @@ class WidgetsOverview extends React.Component {
 		)
 	}
 }
-
 
 WidgetsOverview.propTypes = {
 	onFetchByID: React.PropTypes.func.isRequired,

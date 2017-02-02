@@ -103,23 +103,13 @@ class GraphWidget extends React.Component {
 	}
 
 	render () {
-		var widthClass = 'col-md-' + Math.max(1, Math.min(12, this.props.columns * 3))
-		var height = Math.max(200, this.props.rows * 200)
+		if (this.state.isLoading) return (<span>Loading…</span>)
 
-		return (
-			<div class={widthClass} style={{ height }}>
-				{this.state.isLoading
-					? 'Loading…'
-					: <ReactHighcharts config={this.getConfig()} />
-				}
-			</div>
-		)
+		return (<ReactHighcharts config={this.getConfig()} />)
 	}
 }
 
 GraphWidget.propTypes = {
-	rows: React.PropTypes.number.isRequired,
-	columns: React.PropTypes.number.isRequired,
 	series: React.PropTypes.array.isRequired,
 }
 
