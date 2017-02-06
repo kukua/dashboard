@@ -144,6 +144,23 @@ class MeasurementFilterModel {
 	getLimit () {
 		return this._limit
 	}
+
+	toJSON () {
+		var from = this.getFrom()
+		var to = this.getTo()
+
+		return {
+			name: this.getName(),
+			devices: this.getDevices(),
+			deviceGroups: this.getDeviceGroups(),
+			fields: this.getFields(),
+			from: (from ? from.toISOString() : null),
+			to: (to ? to.toISOString() : null),
+			interval: this.getInterval(),
+			sort: this.getSorting(),
+			limit: this.getLimit(),
+		}
+	}
 }
 
 MeasurementFilterModel.create = (data) => {

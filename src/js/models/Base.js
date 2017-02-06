@@ -13,6 +13,11 @@ class BaseModel {
 		this._attributes = data
 		return this
 	}
+	setAttribute (key, value) {
+		var data = this.getAttributes()
+		data[key] = value
+		return this.setAttributes(data)
+	}
 	getAttributes () {
 		return this._attributes
 	}

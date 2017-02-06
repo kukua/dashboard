@@ -1,122 +1,68 @@
 import _ from 'underscore'
-import Promise from 'bluebird'
 import React from 'react'
-import { connect } from 'react-redux'
-import moment from 'moment-timezone'
-import actions from '../../actions/deviceGroup'
-import MeasurementFilterModel from '../../models/MeasurementFilter'
-import FilterGraph from '../widgets/FilterGraph'
+import ControlsWidget from '../widgets/Controls'
+import DevicePickerWidget from '../widgets/DevicePicker'
+import AlertOverviewWidget from '../widgets/AlertOverview'
+import FilterGraphWidget from '../widgets/FilterGraph'
+import NotFoundWidget from '../widgets/NotFound'
 
-const mapStateToProps = (/*state*/) => {
-	return {}
-}
-
-const mapDispatchToProps = (dispatch) => {
-	return {
-		onFetchByID (id) {
-			return dispatch(actions.fetchByID(id))
-		}
-	}
+const availableWidgets = {
+	'controls': ControlsWidget,
+	'device-picker': DevicePickerWidget,
+	'alert-overview': AlertOverviewWidget,
+	'filter-graph': FilterGraphWidget,
 }
 
 class WidgetsOverview extends React.Component {
 	constructor () {
 		super()
 		this.state = {
-			isLoading: true,
+			shared: {},
 		}
 	}
 
-	loadData () {
-		var from = this.props.from
-		var to = this.props.to
-		var interval = this.props.interval
-
-		Promise.all(this.props.widgets.map((config) => {
-			var widget = {}
-			var f = config.filter
-			var labels = config.labels || {}
-			widget.columns = Math.min(4, config.columns || 4)
-			widget.label = config.label || ''
-
-			return this.props.onFetchByID(f.device_group)
-				.then((group) => group.getDevices().map((device) => {
-					var filter = new MeasurementFilterModel()
-					filter.setName(labels[device.id] || device.name)
-					filter.setDevices([device.id])
-					filter.addField(f.field.name, f.field.aggregator)
-					filter.setFrom(from)
-					filter.setTo(to)
-					filter.setInterval(interval)
-					filter.addSort('timestamp', -1)
-					return filter
-				}))
-				.then((filters) => {
-					widget.filters = filters
-					return widget
-				})
-		})).then((widgets) => {
-			//console.log(widgets)
-			this.setState({ widgets, isLoading: false })
-		})
-	}
-	componentWillMount () {
-		this.loadData()
+	onSetShared (key, value) {
+		var shared = this.state.shared
+		shared[key] = value
+		this.setState({ shared })
 	}
 
-	getWidgets () {
+	render () {
 		var rows = [[]]
 		var columnCount = (row) => _.chain(row)
 			.map((column) => column[0])
 			.reduce((memo, num) => memo + num, 0)
 			.value()
 
-		this.state.widgets.forEach((widget, i) => {
+		this.props.widgets.forEach((widget, i) => {
 			var row = rows[rows.length - 1]
+			widget.columns = Math.min(4, widget.columns || 4)
 			if (columnCount(row) + widget.columns > 4) {
 				// New row
 				rows.push([])
 				row = rows[rows.length - 1]
 			}
 
+			var Widget = availableWidgets[widget.type] || NotFoundWidget
 			var widthClass = 'col-md-' + Math.max(1, Math.min(12, widget.columns * 3))
-			var height = 400
-			var Widget = (
-				<div key={i} class={widthClass} style={{ height }}>
-					<FilterGraph {...widget} />
+			var Container = (
+				<div key={i} class={widthClass}>
+					<Widget {...widget} shared={this.state.shared} onSetShared={(key, value) => this.onSetShared(key, value)} />
 				</div>
 			)
-
-			row.push([widget.columns, Widget])
+			row.push([widget.columns, Container])
 		})
 
-		return rows.map((columns, i) => <div key={i} class="row">{columns.map((column) => column[1])}</div>)
-	}
-
-	render () {
 		return (
 			<div>
-				{this.state.isLoading
-					? 'Loading…'
-					: this.getWidgets()
-				}
+				{rows.map((columns, i) => <div key={i} class="row">{columns.map((column) => column[1])}</div>)}
 			</div>
 		)
 	}
 }
 
 WidgetsOverview.propTypes = {
-	onFetchByID: React.PropTypes.func.isRequired,
 	widgets: React.PropTypes.array.isRequired,
-	from: React.PropTypes.instanceOf(moment).isRequired,
-	to: React.PropTypes.instanceOf(moment).isRequired,
-	interval: React.PropTypes.oneOfType([
-		React.PropTypes.number,
-		React.PropTypes.string,
-	]).isRequired,
 }
 
-export default connect(
-	mapStateToProps,
-	mapDispatchToProps
-)(WidgetsOverview)
+export default WidgetsOverview

@@ -62,19 +62,17 @@ function toParameters (filter) {
 }
 
 export default {
+	// Doesn't use Redux reducers
 	fetchByFilter (filter) {
-		return (/*dispatch*/) => {
-			// Doesn't use Redux reducers
-			return fetch(config.apiUrl + '/measurements?' + toParameters(filter), {
-				headers: {
-					'X-Auth-Token': user.token,
-					'Accept': 'application/json',
-				},
-			})
-				.then(checkStatus)
-				.then(parseJSON)
-				.then((data) => MeasurementListModel.create(data, filter))
-				.then((list) => list.sortValues())
-		}
+		return fetch(config.apiUrl + '/measurements?' + toParameters(filter), {
+			headers: {
+				'X-Auth-Token': user.token,
+				'Accept': 'application/json',
+			},
+		})
+			.then(checkStatus)
+			.then(parseJSON)
+			.then((data) => MeasurementListModel.create(data, filter))
+			.then((list) => list.sortValues())
 	},
 }

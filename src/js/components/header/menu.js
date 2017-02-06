@@ -1,5 +1,5 @@
-import React from 'react'
 import _ from 'underscore'
+import React from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { instance as user } from '../../lib/user'
@@ -27,6 +27,9 @@ class HeaderMenu extends React.Component {
 		this.context.router.replace('/users/login')
 	}
 
+	getTitle () {
+		return (user.isLoggedIn && user.getConfig('dashboard.title') || 'Kukua Dashboard')
+	}
 	getMenu () {
 		var isActive = (to) => _.startsWith(this.props.location.pathname, to, 1)
 
@@ -34,6 +37,7 @@ class HeaderMenu extends React.Component {
 			return (
 				<div class="navbar-collapse collapse" id="navbar-main">
 					<ul class="nav navbar-nav">
+						<li class={isActive('dashboards') ? 'active' : ''}><Link to="/dashboards">Dashboards</Link></li>
 					</ul>
 					<ul class="nav navbar-nav pull-right">
 						<li class="dropdown">
@@ -49,7 +53,7 @@ class HeaderMenu extends React.Component {
 			return (
 				<div class="navbar-collapse collapse" id="navbar-main">
 					<ul class="nav navbar-nav pull-right">
-						<li class={isActive('/users/login') ? 'active' : ''}><Link to="/users/login">Login</Link></li>
+						<li class={isActive('users/login') ? 'active' : ''}><Link to="/users/login">Login</Link></li>
 					</ul>
 				</div>
 			)
@@ -61,7 +65,7 @@ class HeaderMenu extends React.Component {
 			<div class="navbar navbar-default navbar-fixed-top">
 				<div class="container">
 					<div class="navbar-header">
-						<Link to="/" class="navbar-brand">Kukua Dashboard</Link>
+						<Link to="/" class="navbar-brand">{this.getTitle()}</Link>
 						<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
 							<span class="icon-bar"></span>
 							<span class="icon-bar"></span>

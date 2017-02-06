@@ -1,3 +1,5 @@
+import dot from 'dot-object'
+
 export default class User {
 	constructor () {
 		this.callbacks = []
@@ -17,6 +19,7 @@ export default class User {
 		}
 		return this.attributes[key]
 	}
+
 	get id () { return this.get('id') }
 	set id (val) { return this.set('id', val) }
 	get token () { return this.get('auth_token') }
@@ -24,6 +27,16 @@ export default class User {
 	get isLoggedIn () { return !! this.token }
 	get isActive () { return !! this.get('is_active') }
 	get isAdmin () { return !! this.get('is_admin') }
+
+	getConfig (key) {
+		if (typeof key !== 'string') {
+			throw new Error('Invalid user config key.')
+		}
+		key = (key.indexOf('.') >= 0 ? key.replace('.', '.value.') : key + '.value')
+		var config = (this.get('config') || {})
+		return dot.pick(key, config)
+	}
+
 	clear () {
 		this.set({})
 	}

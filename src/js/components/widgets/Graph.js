@@ -1,7 +1,8 @@
 import React from 'react'
 import ReactHighcharts from 'react-highcharts'
+import BaseWidget from './Base'
 
-class GraphWidget extends React.Component {
+class GraphWidget extends BaseWidget {
 	constructor () {
 		super()
 		this.state = {
@@ -89,7 +90,7 @@ class GraphWidget extends React.Component {
 			},
 			yAxis: {
 				title: {
-					text: this.getYAxisTitle(),
+					text: this.getYAxisLabel(),
 				}
 			},
 			series: this.getSeries(),
@@ -103,9 +104,18 @@ class GraphWidget extends React.Component {
 	}
 
 	render () {
-		if (this.state.isLoading) return (<span>Loading…</span>)
+		var height = 400
+		if (this.state.isLoading) {
+			return (<div style={{ height }}>Loading…</div>)
+		}
 
-		return (<ReactHighcharts config={this.getConfig()} />)
+		var config = this.getConfig()
+
+		if (config.series.length === 0) {
+			return (<div class="alert alert-warning">No measurements.</div>)
+		}
+
+		return (<ReactHighcharts style={{ height }} config={config} />)
 	}
 }
 

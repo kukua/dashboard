@@ -1,16 +1,32 @@
 import _ from 'underscore'
 import React from 'react'
-import moment from 'moment-timezone'
 import { instance as user } from '../../lib/user'
 import NoMatch from '../noMatch'
 import WidgetsOverview from '../widgets/Overview'
 
 class DashboardShow extends React.Component {
+	componentWillMount () {
+		this.checkDefault(this.props)
+	}
+	componentWillReceiveProps (next) {
+		this.checkDefault(next)
+	}
+	checkDefault () {
+		if (this.props.params.id === 'default') {
+			var dashboard = _.find(
+				this.getDashboards(),
+				(dashboard) => dashboard.default === true
+			)
+			this.context.router.replace(dashboard ? '/dashboards/' + dashboard.id : '/dashboards')
+		}
+	}
+
+	getDashboards () {
+		return (user.getConfig('dashboards') || [])
+	}
 	getDashboard () {
-		var config = (user.get('config') || {})
-		var dashboards = (config.dashboards && config.dashboards.value || [])
 		var id = this.props.params.id
-		return _.find(dashboards, (dashboard) => dashboard.id === id)
+		return _.find(this.getDashboards(), (dashboard) => dashboard.id === id)
 	}
 
 	render () {
@@ -18,17 +34,10 @@ class DashboardShow extends React.Component {
 
 		if ( ! dashboard) return (<NoMatch />)
 
-		var config = {
-			widgets: (dashboard.widgets || []),
-			from: moment.utc(dashboard.from),
-			to: moment.utc(dashboard.to),
-			interval: dashboard.interval,
-		}
-
 		return (
 			<div>
 				<h1>{dashboard.name}</h1>
-				<WidgetsOverview {...config} />
+				<WidgetsOverview widgets={dashboard.widgets || []} />
 			</div>
 		)
 	}

@@ -25,7 +25,7 @@ function isAuthenticated (nextState, replace) {
 export default (
 	<Router history={hashHistory}>
 		<Route path="/" component={Layout}>
-			<IndexRedirect to="/dashboards" />
+			<IndexRedirect to="/dashboards/default" />
 
 			<Route path="/dashboards" component={DashboardIndex} onEnter={requireAuthentication} />
 			<Route path="/dashboards/:id" component={DashboardShow} onEnter={requireAuthentication} />
