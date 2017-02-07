@@ -4,13 +4,35 @@ import { checkStatus, parseJSON } from '../lib/fetch'
 import DeviceGroupModel from '../models/DeviceGroup'
 
 export default {
-	fetchByID (id) {
-		if (typeof id !== 'string' || ! id.match(/^[a-zA-Z0-9]+$/)) {
-			throw new Error('Invalid device group ID.')
-		}
+	fetchAll () {
+		return (dispatch) => {
+			dispatch({ type: 'DEVICE_GROUP_FETCH_ALL' })
 
-		return (/*dispatch*/) => {
-			// Doesn't use Redux reducers
+			return fetch(config.apiUrl + '/deviceGroups?includes=devices', {
+				headers: {
+					'X-Auth-Token': user.token,
+					'Accept': 'application/json',
+				},
+			})
+				.then(checkStatus)
+				.then(parseJSON)
+				.then((items) => items.map((item) => new DeviceGroupModel(item)))
+				.then((items) => {
+					dispatch({ type: 'DEVICE_GROUP_FETCH_ALL_SUCCESS', items })
+					return items
+				})
+				.catch((err) => {
+					dispatch({ type: 'ERROR_ADD', err })
+					dispatch({ type: 'DEVICE_GROUP_FETCH_ALL_FAIL', err })
+					return Promise.reject(err)
+				})
+		}
+	},
+
+	fetchByID (id) {
+		return (dispatch) => {
+			dispatch({ type: 'DEVICE_GROUP_FETCH' })
+
 			return fetch(config.apiUrl + '/deviceGroups/' + id + '?includes=devices', {
 				headers: {
 					'X-Auth-Token': user.token,
@@ -19,7 +41,17 @@ export default {
 			})
 				.then(checkStatus)
 				.then(parseJSON)
-				.then((data) => new DeviceGroupModel(data))
+				.then((item) => new DeviceGroupModel(item))
+				.then((item) => {
+					dispatch({ type: 'DEVICE_GROUP_FETCH_SUCCESS', item })
+					return item
+				})
+				.catch((err) => {
+					dispatch({ type: 'ERROR_ADD', err })
+					dispatch({ type: 'DEVICE_GROUP_FETCH_FAIL', err })
+					return Promise.reject(err)
+				})
 		}
+
 	},
 }

@@ -7,9 +7,9 @@ class AlertOverviewWidget extends BaseWidget {
 		var deviceGroups = this.props.shared.deviceGroups
 		if ( ! deviceGroups) return []
 		return _.chain(deviceGroups)
-			.map((group) => group.devices)
+			.map((group) => group.getDevices())
 			.flatten()
-			.filter((device) => device.include)
+			.filter((device) => device.getAttribute('include'))
 			.map((device) => device.id)
 			.uniq()
 			.value()

@@ -11,7 +11,7 @@ import s from 'underscore.string'
 import assign from 'es6-object-assign'
 import cookie from 'js-cookie'
 
-require('whatwg-fetch')
+import 'whatwg-fetch'
 
 _.mixin(s.exports())
 assign.polyfill()

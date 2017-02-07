@@ -37,9 +37,9 @@ class FilterGraphWidget extends Graph {
 		if (shared.interval) interval = shared.interval
 
 		return _.chain(props.shared.deviceGroups)
-			.map((group) => group.devices)
+			.map((group) => group.getDevices())
 			.flatten()
-			.filter((device) => device.include)
+			.filter((device) => device.getAttribute('include'))
 			.uniq(false, (device) => device.id)
 			.map((device) => (
 				new MeasurementFilterModel()

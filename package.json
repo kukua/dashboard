@@ -39,6 +39,7 @@
     "moment-timezone": "^0.5.5",
     "parse-duration": "^0.1.1",
     "pre-commit": "^1.1.2",
+    "rc-checkbox": "^1.4.4",
     "react": "^15.4.2",
     "react-addons-css-transition-group": "^15.4.2",
     "react-dom": "^15.4.2",

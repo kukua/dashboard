@@ -5,7 +5,7 @@ import InputMoment from 'input-moment'
 import BaseWidget from './Base'
 import date from '../../lib/date'
 
-require('input-moment/dist/input-moment.css')
+import 'input-moment/dist/input-moment.css'
 
 class ControlsWidget extends BaseWidget {
 	constructor () {
