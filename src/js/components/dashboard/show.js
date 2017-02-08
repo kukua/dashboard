@@ -17,8 +17,8 @@ class DashboardShow extends React.Component {
 	componentWillReceiveProps (next) {
 		this.checkDefault(next)
 	}
-	checkDefault () {
-		if (this.props.params.id === 'default') {
+	checkDefault (props) {
+		if (props.params.id === 'default') {
 			var dashboard = _.find(
 				this.getDashboards(),
 				(dashboard) => dashboard.default === true
