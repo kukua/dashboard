@@ -13,6 +13,7 @@ import Router from './components/router'
 import { instance as user } from './lib/user'
 
 import 'whatwg-fetch'
+import '../css/main.css'
 
 _.mixin(s.exports())
 assign.polyfill()

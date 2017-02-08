@@ -25,8 +25,6 @@ module.exports = {
 	},
 	plugins: [
 		new CopyWebpackPlugin([
-			{ from: 'src/css/', to: 'css/' },
-			{ from: 'node_modules/react-notifications/lib/notifications.css', to: 'css/notifications.css' },
 			{ from: 'node_modules/react-notifications/lib/fonts', to: 'css/fonts/' },
 		]),
 		new HtmlWebpackPlugin({
