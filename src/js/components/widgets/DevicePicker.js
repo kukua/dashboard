@@ -112,12 +112,17 @@ class DevicePickerWidget extends BaseWidget {
 			}
 		})
 
-		var query = Object.assign({}, this.context.location.query)
+		var location = this.context.location
+		var query = Object.assign({}, location.query)
 		query.allDevices = (allDevices ? 1 : 0)
-		query.deviceGroups = (filteredDeviceGroups.length > 0 ? filteredDeviceGroups.join(',') : undefined)
-		query.devices = (filteredDevices.length > 0 ? filteredDevices.join(',') : undefined)
+		query.deviceGroups = (filteredDeviceGroups.join(',') || undefined)
+		query.devices = (filteredDevices.join(',') || undefined)
 
-		this.context.router.push(Object.assign({}, this.context.location, { query }))
+		var route = Object.assign({}, location, {
+			pathname: (location.pathname.startsWith('/') ? '' : '/') + location.pathname,
+			query,
+		})
+		this.context.router.push(route)
 	}
 	onToggleAll () {
 		var deviceGroups = this.getDeviceGroups()
