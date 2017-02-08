@@ -154,7 +154,7 @@ class DevicePickerWidget extends BaseWidget {
 						{ ! this.props.groups_only && (
 							<button class="btn btn-xs btn-default" style={{ marginRight: 10 }} onClick={() => {
 								group.setAttribute('closed', ! closed)
-								this.setDeviceGroups(deviceGroups)
+								this.forceUpdate()
 							}}>
 								<i class={'fa ' + (closed ? 'fa-chevron-down' : 'fa-chevron-up')} />
 							</button>
