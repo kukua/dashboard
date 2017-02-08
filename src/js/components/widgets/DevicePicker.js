@@ -38,12 +38,23 @@ class DevicePickerWidget extends BaseWidget {
 		}
 	}
 	onDeviceGroups (deviceGroups) {
-		// TODO(mauvm): Filter on query if this.props.fromURL
 		// TODO(mauvm): Convert to model (e.g. filter.getUDIDs()) and set shared prop 'deviceFilter'
 
+		var filter = this.getURLFilter()
+
 		deviceGroups.forEach((group) => {
+			var includeGroup = filter.deviceGroups[group.id]
+
+			if (includeGroup === undefined) {
+				includeGroup = filter.includeByDefault
+			}
+
 			group.getDevices().forEach((device) => {
-				device.setAttribute('include', true)
+				var includeDevice
+				if ( ! this.props.groupsOnly) {
+					includeDevice = filter.devices[device.id]
+				}
+				device.setAttribute('include', (includeDevice !== undefined ? includeDevice : includeGroup))
 			})
 		})
 
@@ -59,7 +70,54 @@ class DevicePickerWidget extends BaseWidget {
 		this.setDeviceGroups(deviceGroups)
 	}
 	setDeviceGroups (deviceGroups) {
+		this.setURLFilter(deviceGroups)
 		this.props.onSetShared('deviceGroups', deviceGroups)
+	}
+	getURLFilter () {
+		var { allDevices = 1, deviceGroups = '', devices = '' } = this.context.location.query
+		var includeByDefault = !! parseInt(allDevices)
+		var create = (items) => _.chain(items.split(','))
+			.filter((id) => id)
+			.map((id) => [id, ! includeByDefault])
+			.object()
+			.value()
+
+		deviceGroups = create(deviceGroups)
+		devices = create(devices)
+
+		return { includeByDefault, deviceGroups, devices }
+	}
+	setURLFilter (deviceGroups) {
+		// Determine filtering all
+		var averages = _.chain(deviceGroups)
+			.map((group) => _.filter(group.getDevices(), (device) => device.getAttribute('include')).length / group.getDevices().length)
+			.value()
+		var sum = _.reduce(averages, (memo, num) => memo + num, 0)
+		var allDevices = (sum > 0 && sum / averages.length >= 0.5)
+
+		// Determine device group and device filters
+		var filteredDeviceGroups = []
+		var filteredDevices = []
+
+		deviceGroups.forEach((group, i) => {
+			if (averages[i] === (allDevices ? 0 : 1)) {
+				filteredDeviceGroups.push(group.id)
+			} else {
+				// Determine device filters
+				group.getDevices().forEach((device) => {
+					if (device.getAttribute('include') !== allDevices) {
+						filteredDevices.push(device.id)
+					}
+				})
+			}
+		})
+
+		var query = Object.assign({}, this.context.location.query)
+		query.allDevices = (allDevices ? 1 : 0)
+		query.deviceGroups = (filteredDeviceGroups.length > 0 ? filteredDeviceGroups.join(',') : undefined)
+		query.devices = (filteredDevices.length > 0 ? filteredDevices.join(',') : undefined)
+
+		this.context.router.push(Object.assign({}, this.context.location, { query }))
 	}
 	onToggleAll () {
 		var deviceGroups = this.getDeviceGroups()
@@ -96,6 +154,7 @@ class DevicePickerWidget extends BaseWidget {
 			devices = _.chain(deviceGroups)
 				.map((group) => group.getDevices())
 				.flatten()
+				.uniq(false, (device) => device.id)
 				.value()
 		} else {
 			// Single device group
@@ -183,7 +242,9 @@ class DevicePickerWidget extends BaseWidget {
 											style={{ marginRight: 8 }}
 											onChange={(ev) => this.onDeviceChange(group, device, ev.target.checked)}
 											checked={device.getAttribute('include')} />
-										{' ' + (deviceLabels[device.id] || device.name)}
+										<span title={`${device.name} (${device.id})`}>
+											{' ' + (deviceLabels[device.id] || device.name)}
+										</span>
 									</label>
 								</li>
 							))}
@@ -207,6 +268,10 @@ DevicePickerWidget.propTypes = Object.assign({}, BaseWidget.propTypes, {
 		deviceGroups: React.PropTypes.array,
 	}).isRequired,
 })
+DevicePickerWidget.contextTypes = {
+	location: React.PropTypes.object,
+	router: React.PropTypes.object,
+}
 
 export default connect(
 	mapStateToProps,

@@ -29,7 +29,7 @@ class FilterGraphWidget extends Graph {
 
 		var to = moment()
 		var from = to.clone().subtract(7, 'days')
-		var interval = '30m'
+		var interval = '1h'
 		var shared = this.props.shared
 
 		if (shared.dateRange) {

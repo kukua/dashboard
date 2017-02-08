@@ -5,6 +5,12 @@ import NoMatch from '../noMatch'
 import WidgetsOverview from '../widgets/Overview'
 
 class DashboardShow extends React.Component {
+	getChildContext() {
+		return {
+			location: this.props.location,
+		}
+	}
+
 	componentWillMount () {
 		this.checkDefault(this.props)
 	}
@@ -47,9 +53,13 @@ DashboardShow.propTypes = {
 	params: React.PropTypes.shape({
 		id: React.PropTypes.string.isRequired,
 	}).isRequired,
+	location: React.PropTypes.object,
 }
 DashboardShow.contextTypes = {
 	router: React.PropTypes.object.isRequired
+}
+DashboardShow.childContextTypes = {
+	location: React.PropTypes.object,
 }
 
 export default DashboardShow
