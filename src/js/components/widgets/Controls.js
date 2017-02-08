@@ -88,6 +88,12 @@ class ControlsWidget extends BaseWidget {
 		if ( ! startDate) startDate = shared.dateRange.start
 		if ( ! endDate) endDate = shared.dateRange.end
 
+		// Show previous month instead of next one (because we're working with historic data)
+		var initialMonth = startDate.clone().startOf('month')
+		if (initialMonth.isSame(endDate.clone().startOf('month'))) {
+			initialMonth.subtract(1, 'month')
+		}
+
 		return (
 			<div class="well well-sm">
 				<div class="col-sm-4">
@@ -100,6 +106,7 @@ class ControlsWidget extends BaseWidget {
 								endDate={endDate}
 								displayFormat="DD-MM-YYYY"
 								minimumNights={0}
+								initialVisibleMonth={() => initialMonth}
 								isOutsideRange={() => false}
 								isDayBlocked={(date) => date.isAfter(today)}
 								onFocusChange={this.onFocusChange.bind(this)}
