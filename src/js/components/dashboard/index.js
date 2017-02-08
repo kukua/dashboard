@@ -1,3 +1,4 @@
+import _ from 'underscore'
 import React from 'react'
 import { instance as user } from '../../lib/user'
 import { Link } from 'react-router'
@@ -11,18 +12,25 @@ class DashboardIndex extends React.Component {
 		return (
 			<div>
 				<h1>Dashboards</h1>
-				<div class="row">
-					<div class="col-sm-4">
-						<div class="list-group">
-							{this.getDashboards().map((dashboard) => (
-								<Link key={dashboard.id} class="list-group-item" to={'dashboards/' + dashboard.id}>
+				{_.chain(this.getDashboards())
+					.groupBy((d, i) => Math.floor(i / 3))
+					.toArray()
+					.map((dashboards, i) => (
+						<div key={i} class="row">
+						{dashboards.map((dashboard) => (
+							<div key={dashboard.id} class="col-sm-4">
+								<Link
+									class="list-group-item"
+									style={{ minHeight: 100 }}
+									to={'dashboards/' + dashboard.id}>
 									<h4 class="list-group-item-heading">{dashboard.name}</h4>
 									<p class="list-group-item-text">{dashboard.description}</p>
 								</Link>
-							))}
+							</div>
+						))}
 						</div>
-					</div>
-				</div>
+					))
+					.value()}
 			</div>
 		)
 	}
