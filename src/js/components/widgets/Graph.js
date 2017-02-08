@@ -61,6 +61,9 @@ class GraphWidget extends BaseWidget {
 				line: {
 					turboThreshold: 5000,
 					lineWidth: 1,
+					marker: {
+						enabled: false,
+					},
 				},
 			},
 			credits: {
