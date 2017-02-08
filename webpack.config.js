@@ -5,10 +5,11 @@ module.exports = {
 	entry: './src/js/main.js',
 	output: {
 		path: './www',
-		filename: 'js/main.js'
+		filename: '/js/main.js'
 	},
 	devServer: {
 		inline: true,
+		historyApiFallback: true
 	},
 	module: {
 		loaders: [

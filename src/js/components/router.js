@@ -1,5 +1,5 @@
 import React from 'react'
-import { Router, hashHistory, Route, IndexRedirect } from 'react-router'
+import { Router, browserHistory, Route, IndexRedirect } from 'react-router'
 import { instance as user } from '../lib/user'
 import notify from '../lib/notify'
 
@@ -23,7 +23,7 @@ function isAuthenticated (nextState, replace) {
 }
 
 export default (
-	<Router history={hashHistory}>
+	<Router history={browserHistory}>
 		<Route path="/" component={Layout}>
 			<IndexRedirect to="/dashboards/default" />
 
