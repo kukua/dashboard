@@ -32,8 +32,10 @@ class FilterGraphWidget extends Graph {
 		var interval = '30m'
 		var shared = this.props.shared
 
-		if (shared.from) from = shared.from
-		if (shared.to) to = shared.to
+		if (shared.dateRange) {
+			from = shared.dateRange.start
+			to = shared.dateRange.end
+		}
 		if (shared.interval) interval = shared.interval
 
 		return _.chain(props.shared.deviceGroups)
