@@ -5,6 +5,8 @@ import { NotificationContainer, NotificationManager } from 'react-notifications'
 import { FetchError } from '../../lib/fetch'
 import userActions from '../../actions/user'
 
+import 'react-notifications/lib/notifications.css'
+
 const mapStateToProps = (state) => {
 	return { errors: state.error }
 }
