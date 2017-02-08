@@ -38,7 +38,7 @@ class DevicePickerWidget extends BaseWidget {
 		}
 	}
 	onDeviceGroups (deviceGroups) {
-		// TODO(mauvm): Filter on query if this.props.from_query
+		// TODO(mauvm): Filter on query if this.props.fromURL
 		// TODO(mauvm): Convert to model (e.g. filter.getUDIDs()) and set shared prop 'deviceFilter'
 
 		deviceGroups.forEach((group) => {
@@ -139,7 +139,7 @@ class DevicePickerWidget extends BaseWidget {
 			}}>
 				<li style={{ lineHeight: '26px' }}>
 					<Checkbox
-						style={{ marginLeft: (this.props.groups_only ? 0 : 34), marginRight: 8 }}
+						style={{ marginLeft: (this.props.groupsOnly ? 0 : 34), marginRight: 8 }}
 						onChange={() => this.onToggleAll()}
 						checked={info.allIncluded} />
 					{' All'}
@@ -151,7 +151,7 @@ class DevicePickerWidget extends BaseWidget {
 
 				return (
 					<li key={i} style={{ lineHeight: '26px' }}>
-						{ ! this.props.groups_only && (
+						{ ! this.props.groupsOnly && (
 							<button class="btn btn-xs btn-default" style={{ marginRight: 10 }} onClick={() => {
 								group.setAttribute('closed', ! closed)
 								this.forceUpdate()
@@ -165,7 +165,7 @@ class DevicePickerWidget extends BaseWidget {
 							checked={info.allIncluded} />
 						{' ' + group.name}
 						{info.Label}
-						{ ! this.props.groups_only
+						{ ! this.props.groupsOnly
 							&& group.getDevices().length > 0
 							&& ! closed
 							&& (
@@ -201,8 +201,8 @@ DevicePickerWidget.propTypes = Object.assign({}, BaseWidget.propTypes, {
 	onFetchAll: React.PropTypes.func.isRequired,
 	isFetching: React.PropTypes.bool.isRequired,
 	items: React.PropTypes.array.isRequired,
-	from_query: React.PropTypes.bool,
-	groups_only: React.PropTypes.bool,
+	fromURL: React.PropTypes.bool,
+	groupsOnly: React.PropTypes.bool,
 	shared: React.PropTypes.shape({
 		deviceGroups: React.PropTypes.array,
 	}).isRequired,

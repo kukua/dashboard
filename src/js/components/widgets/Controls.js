@@ -33,7 +33,7 @@ class ControlsWidget extends BaseWidget {
 		if (start.startsWith('-')) start = end.clone().subtract(parseDuration(start.substr(1)), 'milliseconds')
 		else start = moment.utc(start)
 
-		var interval = this.props.interval.options[0][0]
+		var interval = (this.props.interval.default || this.props.interval.options[0][0])
 
 		this.setDateRange(start, end)
 		this.setInterval(interval)
@@ -129,6 +129,7 @@ ControlsWidget.propTypes = Object.assign({}, BaseWidget.propTypes, {
 		end: React.PropTypes.string.isRequired,
 	}),
 	interval: React.PropTypes.shape({
+		default: React.PropTypes.string,
 		options: React.PropTypes.array.isRequired,
 	}),
 })
