@@ -1,10 +1,11 @@
+import _ from 'underscore'
 import React from 'react'
 import moment from 'moment-timezone'
 import parseDuration from 'parse-duration'
 import { DateRangePicker } from 'react-dates'
 import BaseWidget from './Base'
 
-//import 'react-dates/lib/css/_datepicker.css'
+// Modified copy of 'react-dates/lib/css/_datepicker.css'
 import '../../../css/datepicker.css'
 
 class ControlsWidget extends BaseWidget {
@@ -35,6 +36,15 @@ class ControlsWidget extends BaseWidget {
 
 		var interval = (this.props.interval.default || this.props.interval.options[0][0])
 
+		if (this.props.fromURL) {
+			var filter = this.getURLFilter()
+
+			if (filter.startDate) start = filter.startDate
+			if (filter.endDate) end = filter.endDate
+			if (filter.interval) interval = filter.interval
+		}
+
+		this.setURLFilter(start, end, interval)
 		this.setDateRange(start, end)
 		this.setInterval(interval)
 	}
@@ -52,32 +62,77 @@ class ControlsWidget extends BaseWidget {
 	setInterval (interval) {
 		this.props.onSetShared('interval', interval)
 	}
+	getURLFilter () {
+		var { startDate, endDate, interval } = this.context.location.query
+
+		if (startDate) {
+			startDate = moment.utc(startDate, 'DD-MM-YYYY').startOf('day')
+			startDate = (startDate.isValid() ? startDate.startOf('day') : undefined)
+		}
+		if (endDate) {
+			endDate = moment.utc(endDate, 'DD-MM-YYYY').endOf('day')
+			endDate = (endDate.isValid() ? endDate.endOf('day') : undefined)
+		}
+		if ((interval || '').match(/^[0-9]+$/)) {
+			interval = parseInt(interval)
+		}
+		// Valid interval
+		if (interval && ! _.find(this.props.interval.options, (option) => option[0] == interval)) {
+			interval = undefined
+		}
+
+		return { startDate, endDate, interval }
+	}
+	setURLFilter (startDate, endDate, interval) {
+		if ( ! this.props.fromURL) return // Disabled
+
+		var location = this.context.location
+		var query = Object.assign({}, location.query)
+		query.startDate = startDate.format('DD-MM-YYYY')
+		query.endDate = endDate.format('DD-MM-YYYY')
+		query.interval = interval
+		console.log(query)
+
+		var route = Object.assign({}, location, {
+			pathname: (location.pathname.startsWith('/') ? '' : '/') + location.pathname,
+			query,
+		})
+		this.context.router.push(route)
+	}
 
 	onFocusChange (focusedInput) {
 		this.setState({ focusedInput })
 
 		// On close
 		if (focusedInput === null) {
-			var { startDate, endDate } = this.state
-			var dateRange = this.props.shared.dateRange
+			// Wait for DateRangePicker.onDatesChange
+			setTimeout(() => {
+				var { startDate, endDate } = this.state
+				var dateRange = this.props.shared.dateRange
 
-			// No change
-			if ( ! startDate || ! endDate ) return
+				// No change
+				if ( ! startDate || ! endDate ) return
 
-			var start = startDate.clone().startOf('day')
-			var end = endDate.clone().startOf('day')
+				var start = startDate.clone().startOf('day')
+				var end = endDate.clone().endOf('day')
 
-			// No change
-			if (start.isSame(dateRange.start) && end.isSame(dateRange.end)) return
+				// No change
+				if (start.isSame(dateRange.start) && end.isSame(dateRange.end)) return
 
-			this.setDateRange(start, end)
+				this.setURLFilter(start, end, this.props.shared.interval)
+				this.setDateRange(start, end)
+			}, 100)
 		}
 	}
 	onDateRangeChange ({ startDate, endDate }) {
 		this.setState({ startDate, endDate })
 	}
 	onIntervalChange (ev) {
-		this.setInterval(ev.target.value)
+		var interval = ev.target.value
+		var shared = this.props.shared
+
+		this.setURLFilter(shared.dateRange.start, shared.dateRange.end, interval)
+		this.setInterval(interval)
 	}
 
 	render () {
@@ -131,6 +186,7 @@ class ControlsWidget extends BaseWidget {
 }
 
 ControlsWidget.propTypes = Object.assign({}, BaseWidget.propTypes, {
+	fromURL: React.PropTypes.bool,
 	dateRange: React.PropTypes.shape({
 		start: React.PropTypes.string.isRequired,
 		end: React.PropTypes.string.isRequired,
@@ -140,5 +196,9 @@ ControlsWidget.propTypes = Object.assign({}, BaseWidget.propTypes, {
 		options: React.PropTypes.array.isRequired,
 	}),
 })
+ControlsWidget.contextTypes = {
+	location: React.PropTypes.object,
+	router: React.PropTypes.object,
+}
 
 export default ControlsWidget
