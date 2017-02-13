@@ -43,6 +43,7 @@
     "react": "^15.4.2",
     "react-addons-css-transition-group": "^15.4.2",
     "react-addons-shallow-compare": "^15.4.2",
+    "react-dates": "^6.0.2",
     "react-dom": "^15.4.2",
     "react-highcharts": "^11.5.0",
     "react-leaflet": "^1.0.0-rc.3",
@@ -61,7 +62,5 @@
     "webpack-dev-server": "^1.16.3",
     "whatwg-fetch": "^1.0.0"
   },
-  "dependencies": {
-    "react-dates": "^6.0.2"
-  }
+  "dependencies": {}
 }
