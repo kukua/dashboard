@@ -47,6 +47,7 @@ class FilterGraphWidget extends Graph {
 				new MeasurementFilterModel()
 					.setName(deviceLabels[device.id] || device.name)
 					.addDevice(device.id)
+					.addField('timestamp')
 					.addField(fieldName, fieldAggregator)
 					.setFrom(from)
 					.setTo(to)
