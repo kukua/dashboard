@@ -1,15 +1,16 @@
+const path = require('path')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
 	entry: './src/js/main.js',
 	output: {
-		path: './www',
+		path: path.resolve(__dirname, 'www'),
 		filename: '/js/main.js'
 	},
 	devServer: {
 		inline: true,
-		historyApiFallback: true
+		historyApiFallback: true,
 	},
 	module: {
 		loaders: [

@@ -1,6 +1,7 @@
 import _ from 'underscore'
 import React from 'react'
 import BaseWidget from './Base'
+import { instance as user } from '../../lib/user'
 
 class AlertOverviewWidget extends BaseWidget {
 	getDevices () {
@@ -10,8 +11,7 @@ class AlertOverviewWidget extends BaseWidget {
 			.map((group) => group.getDevices())
 			.flatten()
 			.filter((device) => device.getAttribute('include'))
-			.map((device) => device.id)
-			.uniq()
+			.uniq(false, (device) => device.id)
 			.value()
 	}
 
@@ -21,6 +21,7 @@ class AlertOverviewWidget extends BaseWidget {
 		}
 
 		var devices = this.getDevices()
+		var deviceLabels = user.getConfig('deviceLabels') || {}
 
 		return (
 			<table class="table table-striped table-bordered">
@@ -31,10 +32,10 @@ class AlertOverviewWidget extends BaseWidget {
 					</tr>
 				</thead>
 				<tbody>
-				{devices.map((udid, i) => (
-					<tr key={udid} class={i === 1 ? 'danger' : i === 2 ? 'warning' : ''}>
+				{devices.map((device, i) => (
+					<tr key={device.id} class={i === 1 ? 'danger' : i === 2 ? 'warning' : ''}>
 						<td>15:00 06-02-2017</td>
-						<td>Fake alert for {udid}.</td>
+						<td>Fake alert for {deviceLabels[device.id] || device.name}.</td>
 					</tr>
 				))}
 				</tbody>

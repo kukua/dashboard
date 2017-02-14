@@ -23,7 +23,7 @@ class FilterGraphWidget extends Graph {
 	createFilters (props) {
 		if ( ! props.shared.deviceGroups) return []
 
-		var deviceLabels = user.getConfig('deviceLabels')
+		var deviceLabels = user.getConfig('deviceLabels') || {}
 		var fieldName = this.props.filter.field.name
 		var fieldAggregator = this.props.filter.field.aggregator
 
