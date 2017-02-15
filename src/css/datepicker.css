@@ -444,7 +444,7 @@
   background: #cacccd; }
 
 .DateRangePickerInput__arrow {
-  /* ADDED */ margin: 0 14px;
+  /* ADDED */ margin: 0 3px;
   display: inline-block;
   vertical-align: middle; }
 
