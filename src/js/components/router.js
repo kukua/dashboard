@@ -1,5 +1,6 @@
 import React from 'react'
-import { Router, browserHistory, Route, IndexRedirect } from 'react-router'
+import { Router, useRouterHistory, Route, IndexRedirect } from 'react-router'
+import createBrowserHistory from 'react-router/node_modules/history/lib/createBrowserHistory'
 import { instance as user } from '../lib/user'
 import notify from '../lib/notify'
 
@@ -9,6 +10,10 @@ import NoMatch from './noMatch'
 import UserLogin from '../components/user/login'
 import DashboardIndex from '../components/dashboard/index'
 import DashboardShow from '../components/dashboard/show'
+
+const history = useRouterHistory(createBrowserHistory)({
+	basename: '/',
+})
 
 function requireAuthentication (nextState, replace) {
 	if ( ! user.isLoggedIn) return replace('/users/login')
@@ -23,7 +28,7 @@ function isAuthenticated (nextState, replace) {
 }
 
 export default (
-	<Router history={browserHistory}>
+	<Router history={history}>
 		<Route path="/" component={Layout}>
 			<IndexRedirect to="/dashboards/default" />
 
