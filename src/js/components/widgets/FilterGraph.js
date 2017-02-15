@@ -12,6 +12,7 @@ class FilterGraphWidget extends Graph {
 		this.state = {
 			isLoading: true,
 			filter: null,
+			list: null,
 		}
 	}
 
@@ -37,6 +38,8 @@ class FilterGraphWidget extends Graph {
 
 		var deviceIDs =_.pluck(this.getIncludedDevices(props.shared.deviceGroups), 'id')
 
+		if (deviceIDs.length === 0) return null
+
 		return new MeasurementFilterModel()
 			.setGrouped(false)
 			.setDevices(deviceIDs)
@@ -60,14 +63,18 @@ class FilterGraphWidget extends Graph {
 	}
 	loadData (filter) {
 		// TODO(mauvm): Improve way of comparing filter
-		if (JSON.stringify(this.state.filter) === JSON.stringify(filter)) {
+		if (this.state.filter && JSON.stringify(this.state.filter) === JSON.stringify(filter)) {
 			return
 		}
 
-		this.setState({ filter, isLoading: true })
+		var isLoading = !! (filter || ! this.props.shared.deviceGroups)
 
-		actions.fetchByFilter(filter)
-			.then((list) => this.setState({ list, isLoading: false }))
+		this.setState({ isLoading, filter, list: null })
+
+		if (filter) {
+			actions.fetchByFilter(filter)
+				.then((list) => this.setState({ list, isLoading: false }))
+		}
 	}
 
 	getYAxisLabel () {
