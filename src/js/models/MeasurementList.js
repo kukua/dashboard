@@ -43,8 +43,12 @@ class MeasurementListModel {
 		return this._columns
 	}
 	setValues (values) {
-		if ( ! Array.isArray(values)) {
+		var isGrouped = this.getRequestFilter().isGrouped()
+
+		if (isGrouped && ! Array.isArray(values)) {
 			throw new Error('Invalid values array.')
+		} else if ( ! isGrouped && typeof values !== 'object') {
+			throw new Error('Invalid values object.')
 		}
 
 		this._values = values
@@ -53,9 +57,21 @@ class MeasurementListModel {
 	getValues () {
 		return this._values
 	}
+
 	sortValues () {
+		var isGrouped = this.getRequestFilter().isGrouped()
 		var timestampIndex = this.getColumns().indexOf('timestamp')
-		this.setValues(_.sortBy(this.getValues(), (value) => value[timestampIndex]))
+		var values = this.getValues()
+
+		if (isGrouped) {
+			this.setValues(_.sortBy(values, (value) => value[timestampIndex]))
+		} else {
+			for (var id in values) {
+				values[id] = _.sortBy(values[id], (value) => value[timestampIndex])
+			}
+			this.setValues(values)
+		}
+
 		return this
 	}
 }

@@ -88,6 +88,7 @@ class DevicePickerWidget extends BaseWidget {
 		return { includeByDefault, deviceGroups, devices }
 	}
 	setURLFilter (deviceGroups) {
+		// Create shortest possible query parameters
 		// Determine filtering all
 		var averages = _.chain(deviceGroups)
 			.map((group) => _.filter(group.getDevices(), (device) => device.getAttribute('include')).length / group.getDevices().length)

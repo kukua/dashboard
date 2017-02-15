@@ -58,6 +58,8 @@ function toParameters (filter) {
 		parts.push('limit=' + limit)
 	}
 
+	parts.push('grouped=0')
+
 	return parts.join('&')
 }
 

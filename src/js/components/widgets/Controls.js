@@ -91,7 +91,6 @@ class ControlsWidget extends BaseWidget {
 		query.startDate = startDate.format('DD-MM-YYYY')
 		query.endDate = endDate.format('DD-MM-YYYY')
 		query.interval = interval
-		console.log(query)
 
 		var route = Object.assign({}, location, {
 			pathname: (location.pathname.startsWith('/') ? '' : '/') + location.pathname,

@@ -1,11 +1,9 @@
 import _ from 'underscore'
-import Promise from 'bluebird'
 import React from 'react'
 import moment from 'moment-timezone'
 import Graph from './Graph'
 import actions from '../../actions/measurement'
 import MeasurementFilterModel from '../../models/MeasurementFilter'
-import MeasurementListModel from '../../models/MeasurementList'
 import { instance as user } from '../../lib/user'
 
 class FilterGraphWidget extends Graph {
@@ -13,17 +11,16 @@ class FilterGraphWidget extends Graph {
 		super()
 		this.state = {
 			isLoading: true,
-			filters: [],
+			filter: null,
 		}
 	}
 
 	componentWillMount () {
-		this.loadData(this.createFilters(this.props))
+		this.loadData(this.createFilter(this.props))
 	}
-	createFilters (props) {
-		if ( ! props.shared.deviceGroups) return []
+	createFilter (props) {
+		if ( ! props.shared.deviceGroups) return null
 
-		var deviceLabels = user.getConfig('deviceLabels') || {}
 		var fieldName = this.props.filter.field.name
 		var fieldAggregator = this.props.filter.field.aggregator
 
@@ -38,75 +35,60 @@ class FilterGraphWidget extends Graph {
 		}
 		if (shared.interval) interval = shared.interval
 
-		return _.chain(props.shared.deviceGroups)
+		var deviceIDs =_.pluck(this.getIncludedDevices(props.shared.deviceGroups), 'id')
+
+		return new MeasurementFilterModel()
+			.setGrouped(false)
+			.setDevices(deviceIDs)
+			.addField('timestamp')
+			.addField(fieldName, fieldAggregator)
+			.setFrom(from)
+			.setTo(to)
+			.setInterval(interval)
+			.addSort('timestamp', -1)
+	}
+	getIncludedDevices (deviceGroups) {
+		return _.chain(deviceGroups || this.props.shared.deviceGroups)
 			.map((group) => group.getDevices())
 			.flatten()
 			.filter((device) => device.getAttribute('include'))
 			.uniq(false, (device) => device.id)
-			.map((device) => (
-				new MeasurementFilterModel()
-					.setName(deviceLabels[device.id] || device.name)
-					.addDevice(device.id)
-					.addField('timestamp')
-					.addField(fieldName, fieldAggregator)
-					.setFrom(from)
-					.setTo(to)
-					.setInterval(interval)
-					.addSort('timestamp', -1)
-			))
 			.value()
 	}
 	componentWillReceiveProps (next) {
-		this.loadData(this.createFilters(next))
+		this.loadData(this.createFilter(next))
 	}
-	loadData (filters) {
-		// TODO(mauvm): Improve way of comparing filters
-		if (JSON.stringify(this.state.filters) === JSON.stringify(filters)) {
+	loadData (filter) {
+		// TODO(mauvm): Improve way of comparing filter
+		if (JSON.stringify(this.state.filter) === JSON.stringify(filter)) {
 			return
 		}
 
-		this.setState({ filters, isLoading: true })
+		this.setState({ filter, isLoading: true })
 
-		Promise.all(filters.map((filter) => (
-			actions.fetchByFilter(filter)
-				.then(
-					(list) => list,
-					(err) => {
-						console.error(err)
-						return null
-					}
-				)
-		))).then((lists) => {
-			this.setState({ lists: _.compact(lists), isLoading: false })
-		})
+		actions.fetchByFilter(filter)
+			.then((list) => this.setState({ list, isLoading: false }))
 	}
 
 	getYAxisLabel () {
 		return this.props.filter.field.label
 	}
 	getSeries () {
-		var lists = this.state.lists
+		var list = this.state.list
 
-		if ( ! Array.isArray(lists) || lists.length === 0) return []
+		if ( ! list) return []
 
-		return lists.map((list) => {
-			var columns = list.getColumns()
+		var columns = list.getColumns()
+		var deviceLabels = user.getConfig('deviceLabels') || {}
+		var devices = this.getIncludedDevices()
 
-			return {
-				name: this.getListName(list),
-				data: list.getValues().map((row) => row.map((value, j) => {
-					if (columns[j] === 'timestamp') return value * 1000
-					return Math.round(value * 100) / 100
-				})),
-			}
-		})
-	}
-	getListName (list) {
-		if ( ! (list instanceof MeasurementListModel)) {
-			throw new Error('Invalid measurement list model.')
-		}
-
-		return list.getRequestFilter().getName()
+		return _.map(list.getValues(), (values, id) => ({
+			name: (deviceLabels[id] || (_.find(devices, (device) => device.id === id) || { name: id }).name),
+			data: values.map((row) => row.map((value, j) => {
+				if (columns[j] === 'timestamp') return value * 1000
+				return Math.round(value * 100) / 100
+			})),
+		}))
 	}
 }
 

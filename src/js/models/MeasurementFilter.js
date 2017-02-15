@@ -3,6 +3,7 @@ import moment from 'moment-timezone'
 class MeasurementFilterModel {
 	constructor () {
 		this._name = null
+		this._grouped = true
 		this._devices = []
 		this._deviceGroups = []
 		this._fields = []
@@ -19,6 +20,13 @@ class MeasurementFilterModel {
 	}
 	getName () {
 		return this._name || this.getDevices().join(', ')
+	}
+	setGrouped (grouped = true) {
+		this._grouped = !! grouped
+		return this
+	}
+	isGrouped () {
+		return this._grouped
 	}
 	setDevices (devices = []) {
 		this._devices = []
@@ -151,6 +159,7 @@ class MeasurementFilterModel {
 
 		return {
 			name: this.getName(),
+			grouped: this.isGrouped(),
 			devices: this.getDevices(),
 			deviceGroups: this.getDeviceGroups(),
 			fields: this.getFields(),
@@ -166,6 +175,9 @@ class MeasurementFilterModel {
 MeasurementFilterModel.create = (data) => {
 	var filter = new MeasurementFilterModel()
 
+	if (data.grouped !== undefined) {
+		filter.setGrouped(data.grouped)
+	}
 	if (data.devices) {
 		filter.setDevices(data.devices)
 	}
