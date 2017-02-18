@@ -8,6 +8,13 @@ import BaseWidget from './Base'
 import { current as user } from '../../models/User'
 import actions from '../../actions/jobResult'
 
+const columns = {
+	temp: 'temperature',
+	rain: 'rainfall',
+	windSpeed: 'wind speed',
+	gustSpeed: 'gust speed',
+}
+
 class AlertOverviewWidget extends BaseWidget {
 	constructor () {
 		super()
@@ -57,13 +64,6 @@ class AlertOverviewWidget extends BaseWidget {
 
 		if (results.length === 0) return []
 
-		var deviceGroups = this.props.shared.deviceGroups
-		var devices = this.getDevices(false)
-		var deviceLabels = user.getConfig('deviceLabels') || {}
-
-		var types = this.props.types
-		var availableTypes = ['info', 'warning', 'danger']
-
 		var activeEnd = this.props.active.dateRange.end
 		if (activeEnd === 'now') activeEnd = moment.utc().endOf('day')
 		else activeEnd = moment.utc(activeEnd)
@@ -73,6 +73,10 @@ class AlertOverviewWidget extends BaseWidget {
 			activeStart = activeEnd.clone().subtract(parseDuration(activeStart.substr(1)), 'milliseconds')
 		} else activeStart = moment.utc(activeStart)
 
+		var types = this.props.types
+		var availableStyles = ['info', 'warning', 'danger']
+		var devices = this.getDevices()
+
 		return _.chain(results)
 			.map((result) => {
 				if (typeof result.data !== 'object' || typeof result.data.results !== 'object') {
@@ -80,41 +84,43 @@ class AlertOverviewWidget extends BaseWidget {
 				}
 
 				var date = moment.utc(result.created_at)
+				var active = date.isBetween(activeStart, activeEnd)
 
-				return _.map(result.data.results, (status, deviceID) => {
-					var type = (types[status] ? types[status].type : 'hidden')
+				return _.map(result.data.results, (values, deviceID) => _.map(values, (type, column) => {
+					var style = (types[type] && types[type].style || 'hidden')
+					var device = _.find(devices, (device) => device.id === deviceID) // If not found, device is excluded
 
-					if (availableTypes.indexOf(type) === -1) {
-						type = 'hidden'
+					if (availableStyles.indexOf(style) === -1 || ! device) {
+						style = 'hidden'
 					}
 
-					var device = _.find(devices, (device) => device.id === deviceID)
-					if (device && ! device.getAttribute('include')) {
-						type = 'hidden'
-					}
+					var message = this.createMessage(types[type], column, device)
 
-					return { date, type, typeName: status, deviceID }
-				})
+					return { date, active, device, type, style, message }
+				}))
 			})
 			.flatten()
 			.compact()
-			.filter((result) => result.type !== 'hidden')
-			.map((result) => {
-				var udid = result.deviceID
-
-				result.active = result.date.isBetween(activeStart, activeEnd)
-				result.deviceGroup = _.find(
-					deviceGroups,
-					(group) => _.find(group.getDevices(), (device) => device.id === udid)
-				)
-				result.deviceName = (
-					deviceLabels[udid]
-					|| (_.find(devices, (device) => device.id === udid) || { name: udid }).name
-				)
-				return result
-			})
+			.filter((result) => result.style !== 'hidden')
 			.first(100)
 			.value()
+	}
+	createMessage (type, column, device) {
+		var message = (type && type.messageFormat || 'Alert for :device (:device_group).')
+		var deviceLabels = user.getConfig('deviceLabels') || {}
+		var deviceGroups = this.props.shared.deviceGroups
+		var deviceGroup = _.find(deviceGroups, (group) => _.find(group.getDevices(), (d) => d === device))
+		var replacements = {
+			column: (columns[column] || column),
+			device_group: (deviceGroup && deviceGroup.name || ''),
+			device: (deviceLabels[device.id] || device.name || device.id),
+		}
+
+		for (var key in replacements) {
+			message = message.replace(':' + key, replacements[key])
+		}
+
+		return message
 	}
 
 	createLinkTo (alert) {
@@ -123,7 +129,7 @@ class AlertOverviewWidget extends BaseWidget {
 
 		if (link.devicePickerWidgetParams) {
 			query.allDevices = 0
-			query.deviceGroups = alert.deviceGroup.id
+			query.devices = alert.device.id
 		}
 		if (link.controlsWidgetParams) {
 			query.startDate = alert.date.format('DD-MM-YYYY')
@@ -147,14 +153,21 @@ class AlertOverviewWidget extends BaseWidget {
 
 		return (
 			<table class="table table-striped table-bordered">
+				<thead>
+					<tr>
+						<th>Timestamp</th>
+						<th>Type</th>
+						<th>Alert</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
 				<tbody>
 				{alerts.length > 0
 					? alerts.map((alert, i) => (
-						<tr key={i} class={alert.active ? alert.type : ''}>
+						<tr key={i} class={alert.active ? alert.style : ''}>
 							<td>{alert.date.format('HH:mm DD-MM-YYYY')}</td>
-							<td>{titleize(alert.typeName)}</td>
-							<td>{alert.deviceGroup.name}</td>
-							<td>{alert.deviceName}</td>
+							<td>{titleize(alert.type)}</td>
+							<td>{alert.message}</td>
 							{link && (
 								<td width="85px">
 									<Link to={this.createLinkTo(alert)} class="btn btn-default btn-xs pull-right">{link.label}</Link>
@@ -162,7 +175,7 @@ class AlertOverviewWidget extends BaseWidget {
 							)}
 						</tr>
 					))
-					: <tr><td>No alerts.</td></tr>
+					: <tr><td colSpan={4}>No alerts.</td></tr>
 				}
 				</tbody>
 			</table>
