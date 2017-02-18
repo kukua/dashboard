@@ -9,7 +9,7 @@ import Checkbox from 'rc-checkbox'
 import 'rc-checkbox/assets/index.css'
 
 const mapStateToProps = (state) => {
-	var { loading: isFetching, items = [] } = state.deviceGroup.fetchAll
+	var { loading: isFetching, items } = state.deviceGroup.fetchAll
 	return { isFetching, items }
 }
 
@@ -22,22 +22,32 @@ const mapDispatchToProps = (dispatch) => {
 }
 
 class DevicePickerWidget extends BaseWidget {
+	constructor () {
+		super()
+		this.state = {
+			deviceGroups: null,
+		}
+	}
 	componentWillMount () {
-		if ( ! this.getDeviceGroups()) {
-			this.loadData()
-		}
-	}
-	loadData () {
-		if (this.props.items.length > 0) {
-			this.onDeviceGroups(this.props.items)
+		if (this.props.shared.deviceGroups || this.props.items) {
+			this.onDeviceGroups(this.props)
 		} else {
-			this.props.onFetchAll().then(this.onDeviceGroups.bind(this))
+			this.props.onFetchAll()
 		}
 	}
-	onDeviceGroups (deviceGroups) {
-		// TODO(mauvm): Convert to model (e.g. filter.getUDIDs()) and set shared prop 'deviceFilter'
+	componentWillReceiveProps (next) {
+		var deviceGroups = (next.shared.deviceGroups || next.items)
 
-		var filter = this.getURLFilter()
+		if (deviceGroups && deviceGroups !== this.state.deviceGroups) {
+			this.onDeviceGroups(next)
+		}
+	}
+	onDeviceGroups (props) {
+		// TODO(mauvm): Convert deviceGroups to model (e.g. filter.getUDIDs())
+		// and set shared prop 'deviceFilter'
+
+		var deviceGroups = (props.shared.deviceGroups || props.items)
+		var filter = this.getURLFilter(props.fromURL)
 
 		deviceGroups.forEach((group) => {
 			var includeGroup = filter.deviceGroups[group.id]
@@ -48,9 +58,11 @@ class DevicePickerWidget extends BaseWidget {
 
 			group.getDevices().forEach((device) => {
 				var includeDevice
-				if ( ! this.props.groupsOnly) {
+
+				if ( ! props.groupsOnly) {
 					includeDevice = filter.devices[device.id]
 				}
+
 				var include = (includeDevice !== undefined ? includeDevice : includeGroup)
 				device.setAttribute('include', include)
 			})
@@ -65,6 +77,7 @@ class DevicePickerWidget extends BaseWidget {
 		var closed = (deviceCount > 20)
 		deviceGroups.forEach((group) => group.setAttribute('closed', closed))
 
+		this.setState({ deviceGroups })
 		this.setDeviceGroups(deviceGroups)
 	}
 	setDeviceGroups (deviceGroups) {
@@ -72,9 +85,13 @@ class DevicePickerWidget extends BaseWidget {
 		this.props.onSetShared('deviceGroups', deviceGroups)
 	}
 	getDeviceGroups () {
-		return this.props.shared.deviceGroups
+		return this.state.deviceGroups
 	}
-	getURLFilter () {
+	getURLFilter (enabled = true) {
+		if ( ! enabled) {
+			return { includeByDefault: true, deviceGroups: {}, devices: {} }
+		}
+
 		var { allDevices = 1, deviceGroups = '', devices = '' } = this.context.location.query
 		var includeByDefault = !! parseInt(allDevices)
 		var create = (items) => _.chain(items.split(','))
@@ -167,6 +184,7 @@ class DevicePickerWidget extends BaseWidget {
 			// Single device group
 			devices = deviceGroups.getDevices()
 		}
+
 		var includedDevices = devices.filter((device) => device.getAttribute('include'))
 		var allIncluded = (includedDevices.length === devices.length)
 		var labelClass = 'label-default'
@@ -268,7 +286,7 @@ class DevicePickerWidget extends BaseWidget {
 DevicePickerWidget.propTypes = Object.assign({}, BaseWidget.propTypes, {
 	onFetchAll: React.PropTypes.func.isRequired,
 	isFetching: React.PropTypes.bool.isRequired,
-	items: React.PropTypes.array.isRequired,
+	items: React.PropTypes.array,
 	fromURL: React.PropTypes.bool,
 	groupsOnly: React.PropTypes.bool,
 	shared: React.PropTypes.shape({
