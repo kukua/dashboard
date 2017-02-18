@@ -1,6 +1,6 @@
 import _ from 'underscore'
 import React from 'react'
-import { instance as user } from '../../lib/user'
+import { current as user } from '../../models/User'
 import { Link } from 'react-router'
 
 class DashboardIndex extends React.Component {

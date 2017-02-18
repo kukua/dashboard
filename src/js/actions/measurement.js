@@ -1,6 +1,6 @@
 import _ from 'underscore'
 import config from '../config'
-import { instance as user } from '../lib/user'
+import { current as user } from '../models/User'
 import { checkStatus, parseJSON } from '../lib/fetch'
 import MeasurementFilterModel from '../models/MeasurementFilter'
 import MeasurementListModel from '../models/MeasurementList'

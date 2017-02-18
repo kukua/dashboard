@@ -3,7 +3,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import actions from '../../actions/deviceGroup'
 import BaseWidget from './Base'
-import { instance as user } from '../../lib/user'
+import { current as user } from '../../models/User'
 import Checkbox from 'rc-checkbox'
 
 import 'rc-checkbox/assets/index.css'
@@ -22,9 +22,6 @@ const mapDispatchToProps = (dispatch) => {
 }
 
 class DevicePickerWidget extends BaseWidget {
-	getDeviceGroups () {
-		return this.props.shared.deviceGroups
-	}
 	componentWillMount () {
 		if ( ! this.getDeviceGroups()) {
 			this.loadData()
@@ -54,7 +51,8 @@ class DevicePickerWidget extends BaseWidget {
 				if ( ! this.props.groupsOnly) {
 					includeDevice = filter.devices[device.id]
 				}
-				device.setAttribute('include', (includeDevice !== undefined ? includeDevice : includeGroup))
+				var include = (includeDevice !== undefined ? includeDevice : includeGroup)
+				device.setAttribute('include', include)
 			})
 		})
 
@@ -72,6 +70,9 @@ class DevicePickerWidget extends BaseWidget {
 	setDeviceGroups (deviceGroups) {
 		this.setURLFilter(deviceGroups)
 		this.props.onSetShared('deviceGroups', deviceGroups)
+	}
+	getDeviceGroups () {
+		return this.props.shared.deviceGroups
 	}
 	getURLFilter () {
 		var { allDevices = 1, deviceGroups = '', devices = '' } = this.context.location.query

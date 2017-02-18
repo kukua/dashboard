@@ -1,6 +1,6 @@
 import _ from 'underscore'
 import React from 'react'
-import { instance as user } from '../../lib/user'
+import { current as user } from '../../models/User'
 import NoMatch from '../noMatch'
 import WidgetsOverview from '../widgets/Overview'
 

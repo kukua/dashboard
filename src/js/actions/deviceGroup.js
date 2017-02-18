@@ -1,5 +1,5 @@
 import config from '../config'
-import { instance as user } from '../lib/user'
+import { current as user } from '../models/User'
 import { checkStatus, parseJSON } from '../lib/fetch'
 import DeviceGroupModel from '../models/DeviceGroup'
 

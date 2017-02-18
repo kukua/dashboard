@@ -4,7 +4,7 @@ import moment from 'moment-timezone'
 import Graph from './Graph'
 import actions from '../../actions/measurement'
 import MeasurementFilterModel from '../../models/MeasurementFilter'
-import { instance as user } from '../../lib/user'
+import { current as user } from '../../models/User'
 
 class FilterGraphWidget extends Graph {
 	constructor () {

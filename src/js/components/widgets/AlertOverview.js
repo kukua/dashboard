@@ -5,7 +5,7 @@ import moment from 'moment-timezone'
 import parseDuration from 'parse-duration'
 import { Link } from 'react-router'
 import BaseWidget from './Base'
-import { instance as user } from '../../lib/user'
+import { current as user } from '../../models/User'
 import actions from '../../actions/jobResult'
 
 class AlertOverviewWidget extends BaseWidget {
@@ -139,6 +139,7 @@ class AlertOverviewWidget extends BaseWidget {
 			return (<div>Loading…</div>)
 		}
 
+		var alerts = this.getAlerts()
 		var link = this.props.link
 
 		// TODO(mauvm): Add thead, requires translation config for devices and device groups:
@@ -147,19 +148,22 @@ class AlertOverviewWidget extends BaseWidget {
 		return (
 			<table class="table table-striped table-bordered">
 				<tbody>
-				{this.getAlerts().map((alert, i) => (
-					<tr key={i} class={alert.active ? alert.type : ''}>
-						<td>{alert.date.format('HH:mm DD-MM-YYYY')}</td>
-						<td>{titleize(alert.typeName)}</td>
-						<td>{alert.deviceGroup.name}</td>
-						<td>{alert.deviceName}</td>
-						{link && (
-							<td width="85px">
-								<Link to={this.createLinkTo(alert)} class="btn btn-default btn-xs pull-right">{link.label}</Link>
-							</td>
-						)}
-					</tr>
-				))}
+				{alerts.length > 0
+					? alerts.map((alert, i) => (
+						<tr key={i} class={alert.active ? alert.type : ''}>
+							<td>{alert.date.format('HH:mm DD-MM-YYYY')}</td>
+							<td>{titleize(alert.typeName)}</td>
+							<td>{alert.deviceGroup.name}</td>
+							<td>{alert.deviceName}</td>
+							{link && (
+								<td width="85px">
+									<Link to={this.createLinkTo(alert)} class="btn btn-default btn-xs pull-right">{link.label}</Link>
+								</td>
+							)}
+						</tr>
+					))
+					: <tr><td>No alerts.</td></tr>
+				}
 				</tbody>
 			</table>
 		)

@@ -2,7 +2,7 @@ import _ from 'underscore'
 import React from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
-import { instance as user } from '../../lib/user'
+import { current as user } from '../../models/User'
 import userActions from '../../actions/user'
 
 const mapStateToProps = (state) => {
@@ -41,7 +41,7 @@ class HeaderMenu extends React.Component {
 					</ul>
 					<ul class="nav navbar-nav pull-right">
 						<li class="dropdown">
-							<a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{user.get('name')} <span class="caret"></span></a>
+							<a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{user.name} <span class="caret"></span></a>
 							<ul class="dropdown-menu">
 								<li><a href="javascript:;" onClick={this.onLogout.bind(this)}>Sign out</a></li>
 							</ul>

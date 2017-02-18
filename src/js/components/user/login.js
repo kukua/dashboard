@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import Title from '../title'
-import { instance as user } from '../../lib/user'
+import { current as user } from '../../models/User'
 import actions from '../../actions/user'
 
 const mapStateToProps = (state) => {
@@ -23,7 +23,7 @@ class UserLogin extends React.Component {
 
 		var form = ev.target
 		this.props.onLogin(form.email.value, form.password.value).then((item) => {
-			user.set(item)
+			user.setAttributes(item)
 			this.context.router.replace('/')
 		})
 	}
