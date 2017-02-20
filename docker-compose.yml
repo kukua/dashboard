@@ -1,0 +1,9 @@
+dashboard:
+    image: node:7.4
+    working_dir: /data
+    ports:
+        - 8080:8080
+    volumes:
+        - .:/data
+    command: npm run start-prod
+    restart: always
