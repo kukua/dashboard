@@ -1,6 +1,6 @@
 import React from 'react'
 import { Router, useRouterHistory, Route, IndexRedirect } from 'react-router'
-import createBrowserHistory from 'react-router/node_modules/history/lib/createBrowserHistory'
+import createBrowserHistory from 'history/lib/createBrowserHistory'
 import { current as user } from '../models/User'
 import notify from '../lib/notify'
 
