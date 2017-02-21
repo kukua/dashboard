@@ -91,7 +91,7 @@ class AlertOverviewWidget extends BaseWidget {
 					var device = _.find(devices, (device) => device.id === deviceID) // If not found, device is excluded
 
 					if (availableStyles.indexOf(style) === -1 || ! device) {
-						style = 'hidden'
+						return
 					}
 
 					var message = this.createMessage(types[type], column, device)
