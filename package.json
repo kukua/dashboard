@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "start": "webpack-dev-server",
-    "start-prod": "http-server www/ -p 8080",
+    "start-prod": "node src/js/server.js",
     "build": "webpack -p",
     "lint": "eslint src/js/",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/kukua/dashboard#readme",
   "dependencies": {
-    "http-server": "^0.9.0"
+    "connect": "^3.6.0"
   },
   "devDependencies": {
     "babel-core": "^6.22.1",
