@@ -29,7 +29,13 @@ class UserModel extends BaseModel {
 		}
 		key = (key.indexOf('.') >= 0 ? key.replace('.', '.value.') : key + '.value')
 		var config = (this.getAttribute('config') || {})
-		return dot.pick(key, config)
+		var result = dot.pick(key, config)
+		if (result !== undefined) return result
+		var groups = this.getAttribute('user_groups') || []
+		for (var group of groups) {
+			result = dot.pick(key, group.config)
+			if (result !== undefined) return result
+		}
 	}
 
 	clear () {
