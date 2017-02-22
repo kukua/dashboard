@@ -49,6 +49,10 @@ class DevicePickerWidget extends BaseWidget {
 		var deviceGroups = (props.shared.deviceGroups || props.items)
 		var filter = this.getURLFilter(props.fromURL)
 
+		if (props.filterDeviceGroups) {
+			deviceGroups = _.filter(deviceGroups, (group) => _.contains(props.filterDeviceGroups, group.id))
+		}
+
 		deviceGroups.forEach((group) => {
 			var includeGroup = filter.deviceGroups[group.id]
 
@@ -289,6 +293,7 @@ DevicePickerWidget.propTypes = Object.assign({}, BaseWidget.propTypes, {
 	items: React.PropTypes.array,
 	fromURL: React.PropTypes.bool,
 	groupsOnly: React.PropTypes.bool,
+	filterDeviceGroups: React.PropTypes.array,
 	shared: React.PropTypes.shape({
 		deviceGroups: React.PropTypes.array,
 	}).isRequired,
