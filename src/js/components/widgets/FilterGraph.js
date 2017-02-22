@@ -12,18 +12,18 @@ class FilterGraphWidget extends Graph {
 		this.state = {
 			isLoading: true,
 			filter: null,
+			activeField: '',
 			list: null,
 		}
 	}
 
 	componentWillMount () {
-		this.loadData(this.createFilter(this.props))
+		this.loadData(this.createFilter())
 	}
 	createFilter (props) {
-		if ( ! props.shared.deviceGroups) return null
+		props = (props || this.props)
 
-		var fieldName = this.props.filter.field.name
-		var fieldAggregator = this.props.filter.field.aggregator
+		if ( ! props.shared.deviceGroups) return null
 
 		var to = moment()
 		var from = to.clone().subtract(7, 'days')
@@ -40,15 +40,32 @@ class FilterGraphWidget extends Graph {
 
 		if (deviceIDs.length === 0) return null
 
+		var availableFields = this.getFields(props)
+		var activeField = this.state.activeField
+		var field
+		if (activeField) field = availableFields[activeField]
+		if ( ! field) field = _.first(_.values(availableFields))
+
 		return new MeasurementFilterModel()
 			.setGrouped(false)
 			.setDevices(deviceIDs)
 			.addField('timestamp')
-			.addField(fieldName, fieldAggregator)
+			.addField(field.name, field.aggregator)
 			.setFrom(from)
 			.setTo(to)
 			.setInterval(interval)
 			.addSort('timestamp', -1)
+			.setAttribute('availableFields', availableFields)
+	}
+	getFields (props) {
+		props = (props || this.props)
+		var fields = (props.filter.fields || [])
+		var field = props.filter.field
+		if (field) fields.unshift(field)
+		return _.object(
+			_.map(fields, (field) => this.getFieldKey(field)),
+			fields
+		)
 	}
 	getIncludedDevices (deviceGroups) {
 		return _.chain(deviceGroups || this.props.shared.deviceGroups)
@@ -69,16 +86,28 @@ class FilterGraphWidget extends Graph {
 
 		var isLoading = !! (filter || ! this.props.shared.deviceGroups)
 
-		this.setState({ isLoading, filter, list: null })
+		this.setState({
+			isLoading,
+			filter,
+			activeField: (filter && this.getFieldKey(filter.getFields()[1]) || ''),
+			list: null,
+		})
 
 		if (filter) {
 			actions.fetchByFilter(filter)
 				.then((list) => this.setState({ list, isLoading: false }))
 		}
 	}
+	getFieldKey (field) {
+		if (typeof field !== 'object') return ''
+		return field.name + '_' + field.aggregator
+	}
 
-	getYAxisLabel () {
-		return this.props.filter.field.label
+	getTitle () {
+		var filter = this.state.filter
+		var field = filter.getFields()[1]
+		var availableField = filter.getAttribute('availableFields')[this.getFieldKey(field)]
+		return (availableField && availableField.label || field.aggregator + ' ' + field.name)
 	}
 	getSeries () {
 		var list = this.state.list
@@ -103,16 +132,58 @@ class FilterGraphWidget extends Graph {
 			return (<span>No stations selected.</span>)
 		}
 	}
+	renderChart (...args) {
+		return (
+			<div>
+				{super.renderChart(...args)}
+				{this.renderFieldSelect()}
+			</div>
+		)
+	}
+	renderFieldSelect () {
+		var filter = this.state.filter
+		var activeField = this.state.activeField
+		var availableFields = filter.getAttribute('availableFields')
+
+		if (_.size(availableFields) === 1) return
+
+		return (
+			<div class="form-inline" style={{
+				position: 'absolute',
+				top: 2,
+				right: 10,
+			}}>
+				<select
+					class="form-control input-sm"
+					value={activeField}
+					onChange={this.onActiveFieldChange.bind(this)}>
+				{_.map(availableFields, (field) => {
+					var key = this.getFieldKey(field)
+					return (<option key={key} value={key}>{field.label}</option>)
+				})}
+				</select>
+			</div>
+		)
+	}
+	onActiveFieldChange (ev) {
+		if (this.state.activeField === ev.target.value) return
+		this.setState({ isLoading: true, activeField: ev.target.value })
+		// Make sure the state has been updated
+		setTimeout(() => this.loadData(this.createFilter()), 1)
+	}
 }
 
 // Override GraphWidget.propTypes
+var fieldShape = React.PropTypes.shape({
+	name: React.PropTypes.string.isRequired,
+	aggregator: React.PropTypes.string.isRequired,
+	label: React.PropTypes.string.isRequired,
+})
+
 FilterGraphWidget.propTypes = {
 	filter: React.PropTypes.shape({
-		field: React.PropTypes.shape({
-			name: React.PropTypes.string.isRequired,
-			aggregator: React.PropTypes.string.isRequired,
-			label: React.PropTypes.string.isRequired,
-		}).isRequired,
+		field: fieldShape,
+		fields: React.PropTypes.arrayOf(fieldShape),
 	}).isRequired,
 	shared: React.PropTypes.shape({
 		deviceGroups: React.PropTypes.array,

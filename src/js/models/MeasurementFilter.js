@@ -1,35 +1,23 @@
 import moment from 'moment-timezone'
+import BaseModel from './Base'
 
-class MeasurementFilterModel {
-	constructor () {
-		this._name = null
-		this._grouped = true
-		this._devices = []
-		this._deviceGroups = []
-		this._fields = []
-		this._from = null
-		this._to = null
-		this._interval = null
-		this._sorting = []
-		this._limit = null
-	}
-
+class MeasurementFilterModel extends BaseModel {
 	setName (name) {
-		this._name = name
+		this.setAttribute('name', name)
 		return this
 	}
 	getName () {
-		return this._name || this.getDevices().join(', ')
+		return this.getAttribute('name') || this.getDevices().join(', ')
 	}
 	setGrouped (grouped = true) {
-		this._grouped = !! grouped
+		this.setAttribute('grouped', !! grouped)
 		return this
 	}
 	isGrouped () {
-		return this._grouped
+		return this.getAttribute('grouped')
 	}
 	setDevices (devices = []) {
-		this._devices = []
+		this.setAttribute('devices', [])
 		devices.forEach((udid) => {
 			this.addDevice(udid)
 		})
@@ -40,14 +28,16 @@ class MeasurementFilterModel {
 			throw new Error(`Invalid device ID "${udid}".`)
 		}
 
-		this._devices.push(udid)
+		var devices = this.getDevices()
+		devices.push(udid)
+		this.setAttribute('devices', devices)
 		return this
 	}
 	getDevices () {
-		return this._devices
+		return (this.getAttribute('devices') || [])
 	}
 	setDeviceGroups (groups = []) {
-		this._deviceGroups = []
+		this.setAttribute('deviceGroups', [])
 		groups.forEach((group) => {
 			this.addDeviceGroup(group)
 		})
@@ -58,14 +48,16 @@ class MeasurementFilterModel {
 			throw new Error(`Invalid device group ID "${group}".`)
 		}
 
-		this._deviceGroups.push(group)
+		var groups = this.getDeviceGroups()
+		groups.push(group)
+		this.setAttribute('deviceGroups', groups)
 		return this
 	}
 	getDeviceGroups () {
-		return this._deviceGroups
+		return (this.getAttribute('deviceGroups') || [])
 	}
 	setFields (fields = []) {
-		this._fields = []
+		this.setAttribute('fields', [])
 		fields.forEach(({ name, aggregator }) => {
 			this.addField(name, aggregator)
 		})
@@ -79,33 +71,35 @@ class MeasurementFilterModel {
 			throw new Error('Invalid field aggregator.')
 		}
 
-		this._fields.push({ name, aggregator })
+		var fields = this.getFields()
+		fields.push({ name, aggregator })
+		this.setAttribute('fields', fields)
 		return this
 	}
 	getFields () {
-		return this._fields
+		return (this.getAttribute('fields') || [])
 	}
 	setFrom (date) {
 		if ( ! (date instanceof moment) || ! date.isValid()) {
 			throw new Error('Invalid from date.')
 		}
 
-		this._from = date
+		this.setAttribute('from', date)
 		return this
 	}
 	getFrom () {
-		return this._from
+		return this.getAttribute('from')
 	}
 	setTo (date) {
 		if ( ! (date instanceof moment) || ! date.isValid()) {
 			throw new Error('Invalid to date.')
 		}
 
-		this._to = date
+		this.setAttribute('to', date)
 		return this
 	}
 	getTo () {
-		return this._to
+		return this.getAttribute('to')
 	}
 	setInterval (interval) {
 		if (typeof interval === 'number' && isNaN(interval)) {
@@ -114,14 +108,14 @@ class MeasurementFilterModel {
 			throw new Error('Invalid interval.')
 		}
 
-		this._interval = interval
+		this.setAttribute('interval', interval)
 		return this
 	}
 	getInterval () {
-		return this._interval
+		return this.getAttribute('interval')
 	}
 	setSorting (sorting = []) {
-		this._sorting = []
+		this.setAttribute('sorting', [])
 		sorting.forEach(({ name, order }) => {
 			this.addSort(name, order)
 		})
@@ -135,22 +129,24 @@ class MeasurementFilterModel {
 			throw new Error('Invalid sorting order.')
 		}
 
-		this._sorting.push({ name, order })
+		var sorting = this.getSorting()
+		sorting.push({ name, order })
+		this.setAttribute('sorting', sorting)
 		return this
 	}
 	getSorting () {
-		return this._sorting
+		return (this.getAttribute('sorting') || [])
 	}
 	setLimit (limit) {
 		if (typeof limit !== 'number' || isNaN(limit)) {
 			throw new Error('Invalid limit.')
 		}
 
-		this._limit = limit
+		this.setAttribute('limit', limit)
 		return this
 	}
 	getLimit () {
-		return this._limit
+		return this.getAttribute('limit')
 	}
 
 	toJSON () {

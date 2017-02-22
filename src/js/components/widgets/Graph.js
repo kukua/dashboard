@@ -17,11 +17,12 @@ class GraphWidget extends BaseWidget {
 	getConfig (height) {
 		return {
 			title: {
-				text: '',
-				align: 'left',
+				text: this.getTitle(),
+				align: 'center',
 				style: {
-					fontSize: '26px',
-					fontFamily: 'Asap, Trebuchet MS',
+					fontSize: '14px',
+					fontWeight: 'bold',
+					fontFamily: '"Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif',
 				},
 			},
 			tooltip: {
@@ -76,7 +77,7 @@ class GraphWidget extends BaseWidget {
 					align: 'right',
 				},
 				title: {
-					text: 'Timestamp',
+					text: '',
 				},
 				crosshair: true,
 				alternateGridColor: '#f7f7f7',
@@ -93,39 +94,45 @@ class GraphWidget extends BaseWidget {
 			},
 			yAxis: {
 				title: {
-					text: this.getYAxisLabel(),
-				}
+					text: '',
+				},
 			},
 			series: this.getSeries(),
 		}
 	}
-	getYAxisTitle () {
+	getTitle () {
 		return ''
 	}
 	getSeries () {
 		return this.props.series
 	}
 
+	renderChart (config) {
+		return (<ReactHighcharts config={config} />)
+	}
+
 	renderWarning () {}
 	render () {
-		var height = 400
-		var body = this.renderWarning(height)
+		var body, height = 400
 
-		if ( ! body && this.state.isLoading) {
+		if (this.state.isLoading) {
 			body = (<span>Loading…</span>)
+		}
+		if ( ! body) {
+			body = this.renderWarning(height)
 		}
 
 		if ( ! body) {
 			var config = this.getConfig(height)
 
 			if (config.series.length > 0) {
-				body = (<ReactHighcharts config={config} />)
+				body = this.renderChart(config)
 			} else {
 				body = (<div class="alert alert-warning">No measurements.</div>)
 			}
 		}
 
-		return (<div style={{ height }}>{body}</div>)
+		return (<div style={{ height, position: 'relative' }}>{body}</div>)
 	}
 }
 
