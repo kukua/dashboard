@@ -14,7 +14,7 @@ class GraphWidget extends BaseWidget {
 		this.setState({ isLoading: false })
 	}
 
-	getConfig () {
+	getConfig (height) {
 		return {
 			title: {
 				text: '',
@@ -26,6 +26,7 @@ class GraphWidget extends BaseWidget {
 			},
 			tooltip: {
 				shared: true,
+				useHTML: true,
 				valueSuffix: '',
 				dateTimeLabelFormats: {
 					millisecond: '%H:%M %d-%m-%Y',
@@ -39,11 +40,10 @@ class GraphWidget extends BaseWidget {
 				},
 			},
 			legend: {
-				align: 'center',
-				verticalAlign: 'bottom',
-				layout: 'horizontal',
+				enabled: false,
 			},
 			chart: {
+				height,
 				style: {
 					fontFamily: 'Trebuchet MS',
 				},
@@ -106,25 +106,26 @@ class GraphWidget extends BaseWidget {
 		return this.props.series
 	}
 
-	renderWarning () {
-	}
+	renderWarning () {}
 	render () {
 		var height = 400
+		var body = this.renderWarning(height)
 
-		var warning = this.renderWarning(height)
-		if (warning) return warning
-
-		if (this.state.isLoading) {
-			return (<div style={{ height }}>Loading…</div>)
+		if ( ! body && this.state.isLoading) {
+			body = (<span>Loading…</span>)
 		}
 
-		var config = this.getConfig()
+		if ( ! body) {
+			var config = this.getConfig(height)
 
-		if (config.series.length === 0) {
-			return (<div class="alert alert-warning">No measurements.</div>)
+			if (config.series.length > 0) {
+				body = (<ReactHighcharts config={config} />)
+			} else {
+				body = (<div class="alert alert-warning">No measurements.</div>)
+			}
 		}
 
-		return (<ReactHighcharts style={{ height }} config={config} />)
+		return (<div style={{ height }}>{body}</div>)
 	}
 }
 

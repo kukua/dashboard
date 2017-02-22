@@ -98,9 +98,9 @@ class FilterGraphWidget extends Graph {
 		}))
 	}
 
-	renderWarning (height) {
+	renderWarning () {
 		if (this.getIncludedDevices().length === 0) {
-			return (<div style={{ height }}>No stations selected.</div>)
+			return (<span>No stations selected.</span>)
 		}
 	}
 }
