@@ -47,7 +47,11 @@ class DevicePickerWidget extends BaseWidget {
 		// and set shared prop 'deviceFilter'
 
 		var deviceGroups = (props.shared.deviceGroups || props.items)
-		var filter = this.getURLFilter(props.fromURL)
+		var filter = this.getDefaultFilter(props)
+		if (props.fromURL) {
+			var urlFilter = this.getURLFilter()
+			if ( ! urlFilter.defaultValues) Object.assign(filter, urlFilter)
+		}
 
 		if (props.filterDeviceGroups) {
 			deviceGroups = _.filter(deviceGroups, (group) => _.contains(props.filterDeviceGroups, group.id))
@@ -91,14 +95,40 @@ class DevicePickerWidget extends BaseWidget {
 	getDeviceGroups () {
 		return this.state.deviceGroups
 	}
-	getURLFilter (enabled = true) {
-		if ( ! enabled) {
-			return { includeByDefault: true, deviceGroups: {}, devices: {} }
-		}
+	getDefaultFilter (props) {
+		props = (props || this.props)
+		var defaultFilter = (props.defaultFilter || {})
+		var includeByDefault = (defaultFilter.allDevices !== undefined
+			? !! defaultFilter.allDevices
+			: true)
 
-		var { allDevices = 1, deviceGroups = '', devices = '' } = this.context.location.query
+		return {
+			includeByDefault,
+			deviceGroups: (Array.isArray(defaultFilter.deviceGroups)
+				? _.object(
+					defaultFilter.deviceGroups,
+					new Array(defaultFilter.deviceGroups.length).fill( ! includeByDefault)
+				)
+				: {}),
+			devices: (Array.isArray(defaultFilter.devices)
+				? _.object(
+					defaultFilter.devices,
+					new Array(defaultFilter.devices.length).fill( ! includeByDefault)
+				)
+				: {}),
+		}
+	}
+	getURLFilter () {
+		var query = this.context.location.query
+		var { allDevices, deviceGroups, devices } = query
+		var defaultValues = (
+			allDevices === undefined &&
+			deviceGroups === undefined &&
+			devices === undefined
+		)
+		if (allDevices === undefined) allDevices = 1
 		var includeByDefault = !! parseInt(allDevices)
-		var create = (items) => _.chain(items.split(','))
+		var create = (items = '') => _.chain(items.split(','))
 			.filter((id) => id)
 			.map((id) => [id, ! includeByDefault])
 			.object()
@@ -107,7 +137,7 @@ class DevicePickerWidget extends BaseWidget {
 		deviceGroups = create(deviceGroups)
 		devices = create(devices)
 
-		return { includeByDefault, deviceGroups, devices }
+		return { includeByDefault, deviceGroups, devices, defaultValues }
 	}
 	setURLFilter (deviceGroups) {
 		// Create shortest possible query parameters
@@ -294,6 +324,11 @@ DevicePickerWidget.propTypes = Object.assign({}, BaseWidget.propTypes, {
 	fromURL: React.PropTypes.bool,
 	groupsOnly: React.PropTypes.bool,
 	filterDeviceGroups: React.PropTypes.array,
+	defaultFilter: React.PropTypes.shape({
+		allDevices: React.PropTypes.bool,
+		deviceGroups: React.PropTypes.array,
+		devices: React.PropTypes.array,
+	}),
 	shared: React.PropTypes.shape({
 		deviceGroups: React.PropTypes.array,
 	}).isRequired,

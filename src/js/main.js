@@ -12,6 +12,7 @@ import reducers from './reducers/'
 import Router from './components/router'
 
 import 'whatwg-fetch'
+import 'array.prototype.fill'
 import '../css/main.css'
 
 _.mixin(s.exports())
