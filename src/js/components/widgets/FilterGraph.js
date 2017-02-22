@@ -97,6 +97,12 @@ class FilterGraphWidget extends Graph {
 			})),
 		}))
 	}
+
+	renderWarning (height) {
+		if (this.getIncludedDevices().length === 0) {
+			return (<div style={{ height }}>No stations selected.</div>)
+		}
+	}
 }
 
 // Override GraphWidget.propTypes

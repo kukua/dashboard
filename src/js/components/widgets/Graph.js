@@ -106,8 +106,14 @@ class GraphWidget extends BaseWidget {
 		return this.props.series
 	}
 
+	renderWarning () {
+	}
 	render () {
 		var height = 400
+
+		var warning = this.renderWarning(height)
+		if (warning) return warning
+
 		if (this.state.isLoading) {
 			return (<div style={{ height }}>Loading…</div>)
 		}
