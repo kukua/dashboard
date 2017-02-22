@@ -212,7 +212,7 @@ class DevicePickerWidget extends BaseWidget {
 			return (<div>Loading…</div>)
 		}
 
-		var deviceLabels = user.getConfig('deviceLabels')
+		var deviceLabels = user.getConfig('deviceLabels') || {}
 		var info = this.getInfo(deviceGroups)
 
 		return (
