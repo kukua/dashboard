@@ -33,6 +33,7 @@ export default {
 
 	logout () {
 		user.clear()
+		window.location = '/' // Refresh
 		return { type: 'USER_LOGOUT' }
 	},
 }
