@@ -1,7 +1,7 @@
 import _ from 'underscore'
 import config from '../config'
 import { current as user } from '../models/User'
-import { checkStatus, parseJSON } from '../lib/fetch'
+import { checkStatus, parseJSON } from '../helpers/fetch'
 import MeasurementFilterModel from '../models/MeasurementFilter'
 import MeasurementListModel from '../models/MeasurementList'
 

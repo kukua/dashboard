@@ -1,19 +1,21 @@
 import _ from 'underscore'
 import React from 'react'
-import ControlsWidget from '../widgets/Controls'
-import DevicePickerWidget from '../widgets/DevicePicker'
-import AlertOverviewWidget from '../widgets/AlertOverview'
-import FilterGraphWidget from '../widgets/FilterGraph'
-import NotFoundWidget from '../widgets/NotFound'
+import ControlsWidget from './Controls'
+import DevicePickerWidget from './DevicePicker'
+import AlertOverviewWidget from './AlertOverview'
+import FilterGraphWidget from './FilterGraph'
+import DownloadWidget from './Download'
+import NotFoundWidget from './NotFound'
 
 const availableWidgets = {
 	'controls': ControlsWidget,
 	'device-picker': DevicePickerWidget,
 	'alert-overview': AlertOverviewWidget,
 	'filter-graph': FilterGraphWidget,
+	'download': DownloadWidget,
 }
 
-class WidgetsOverview extends React.Component {
+class WidgetOverview extends React.Component {
 	constructor () {
 		super()
 		this.state = {
@@ -61,8 +63,8 @@ class WidgetsOverview extends React.Component {
 	}
 }
 
-WidgetsOverview.propTypes = {
+WidgetOverview.propTypes = {
 	widgets: React.PropTypes.array.isRequired,
 }
 
-export default WidgetsOverview
+export default WidgetOverview

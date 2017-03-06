@@ -2,7 +2,7 @@ import _ from 'underscore'
 import React from 'react'
 import { current as user } from '../../models/User'
 import NoMatch from '../noMatch'
-import WidgetsOverview from '../widgets/Overview'
+import WidgetOverview from '../widget/Overview'
 
 class DashboardShow extends React.Component {
 	getChildContext() {
@@ -43,7 +43,7 @@ class DashboardShow extends React.Component {
 		return (
 			<div>
 				<h1>{dashboard.name}</h1>
-				<WidgetsOverview widgets={dashboard.widgets || []} />
+				<WidgetOverview widgets={dashboard.widgets || []} />
 			</div>
 		)
 	}

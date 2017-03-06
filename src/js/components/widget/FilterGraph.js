@@ -5,6 +5,7 @@ import Graph from './Graph'
 import actions from '../../actions/measurement'
 import MeasurementFilterModel from '../../models/MeasurementFilter'
 import { current as user } from '../../models/User'
+import downloadTSV from '../../helpers/downloadTSV'
 
 class FilterGraphWidget extends Graph {
 	constructor () {
@@ -19,6 +20,16 @@ class FilterGraphWidget extends Graph {
 
 	componentWillMount () {
 		this.loadData(this.createFilter())
+	}
+	componentDidUpdate () {
+		$(this.refs.selectpicker).selectpicker({
+			styleBase: 'form-control',
+			style: '',
+			selectedTextFormat: 'static',
+			showIcon: true,
+			iconBase: 'fa',
+			tickIcon: 'fa-check',
+		})
 	}
 	createFilter (props) {
 		props = (props || this.props)
@@ -150,17 +161,24 @@ class FilterGraphWidget extends Graph {
 		return (
 			<div class="form-inline" style={{
 				position: 'absolute',
-				top: 2,
+				top: 0,
 				right: 10,
 			}}>
 				<select
-					class="form-control input-sm"
+					class="form-control"
 					value={activeField}
 					onChange={this.onActiveFieldChange.bind(this)}>
 				{_.map(availableFields, (field) => {
 					var key = this.getFieldKey(field)
 					return (<option key={key} value={key}>{field.label}</option>)
 				})}
+				</select>
+				<select
+					ref="selectpicker"
+					class="bootstrap-select-actions"
+					title="Actions"
+					onChange={this.onActionChange.bind(this)}>
+					<option data-icon="fa-download" value="download">Download</option>
 				</select>
 			</div>
 		)
@@ -170,6 +188,31 @@ class FilterGraphWidget extends Graph {
 		this.setState({ isLoading: true, activeField: ev.target.value })
 		// Make sure the state has been updated
 		setTimeout(() => this.loadData(this.createFilter()), 1)
+	}
+	onActionChange (ev) {
+		ev.preventDefault()
+
+		switch (ev.target.value) {
+		case 'download':
+			var list = this.state.list
+			var columns = list.getColumns()
+			var lines = _.chain(list.getValues())
+				.map((rows, id) => _.map(rows, (row) => {
+					row = _.map(row, (value, i) => {
+						if (columns[i] === 'timestamp') return moment.utc(value * 1000).toISOString()
+						return Math.round(value * 100) / 100
+					})
+					row.unshift(id)
+					return row
+				}))
+				.flatten(true)
+				.value()
+			columns.unshift('station')
+			downloadTSV(columns, lines, 'data.' + moment().format('DD-MM-YYYY') + '.tsv')
+			break
+		default:
+			console.error('Invalid action:', ev.target.value)
+		}
 	}
 }
 

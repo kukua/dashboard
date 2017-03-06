@@ -2,7 +2,7 @@ import React from 'react'
 import { Router, useRouterHistory, Route, IndexRedirect } from 'react-router'
 import createBrowserHistory from 'history/lib/createBrowserHistory'
 import { current as user } from '../models/User'
-import notify from '../lib/notify'
+import notify from '../helpers/notify'
 
 import Layout from './layout/master'
 import NoMatch from './noMatch'

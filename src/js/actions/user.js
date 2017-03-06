@@ -1,6 +1,6 @@
 import config from '../config'
 import { current as user } from '../models/User'
-import { checkStatus, parseJSON } from '../lib/fetch'
+import { checkStatus, parseJSON } from '../helpers/fetch'
 
 export default {
 	login (email, password) {

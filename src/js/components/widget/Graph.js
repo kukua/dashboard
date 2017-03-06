@@ -18,7 +18,7 @@ class GraphWidget extends BaseWidget {
 		return {
 			title: {
 				text: this.getTitle(),
-				align: 'center',
+				align: 'left',
 				style: {
 					fontSize: '14px',
 					fontWeight: 'bold',

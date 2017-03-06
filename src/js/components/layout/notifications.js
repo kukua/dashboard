@@ -2,7 +2,7 @@ import React from 'react'
 import _ from 'underscore'
 import { connect } from 'react-redux'
 import { NotificationContainer, NotificationManager } from 'react-notifications'
-import { FetchError } from '../../lib/fetch'
+import { FetchError } from '../../helpers/fetch'
 import userActions from '../../actions/user'
 
 import 'react-notifications/lib/notifications.css'

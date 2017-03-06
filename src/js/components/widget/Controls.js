@@ -2,22 +2,10 @@ import _ from 'underscore'
 import React from 'react'
 import moment from 'moment-timezone'
 import parseDuration from 'parse-duration'
-import { DateRangePicker } from 'react-dates'
 import BaseWidget from './Base'
-
-// Modified copy of 'react-dates/lib/css/_datepicker.css'
-import '../../../css/datepicker.css'
+import DateRangePicker from '../input/dateRangePicker'
 
 class ControlsWidget extends BaseWidget {
-	constructor () {
-		super()
-		this.state = {
-			focusedInput: null,
-			startDate: null,
-			endDate: null,
-		}
-	}
-
 	componentWillMount () {
 		var shared = this.props.shared
 
@@ -27,12 +15,18 @@ class ControlsWidget extends BaseWidget {
 	}
 	setDefaults () {
 		var end = this.props.dateRange.end
-		if (end === 'now') end = moment.utc().startOf('day')
-		else end = moment.utc(end)
+		if (end === 'now') {
+			end = moment.utc().startOf('day')
+		}else {
+			end = moment.utc(end)
+		}
 
 		var start = this.props.dateRange.start
-		if (start.startsWith('-')) start = end.clone().subtract(parseDuration(start.substr(1)), 'milliseconds')
-		else start = moment.utc(start)
+		if (start.startsWith('-')) {
+			start = end.clone().subtract(parseDuration(start.substr(1)), 'milliseconds')
+		} else {
+			start = moment.utc(start)
+		}
 
 		var interval = (this.props.interval.default || this.props.interval.options[0][0])
 
@@ -99,32 +93,9 @@ class ControlsWidget extends BaseWidget {
 		this.context.router.push(route)
 	}
 
-	onFocusChange (focusedInput) {
-		this.setState({ focusedInput })
-
-		// On close
-		if (focusedInput === null) {
-			// Wait for DateRangePicker.onDatesChange
-			setTimeout(() => {
-				var { startDate, endDate } = this.state
-				var dateRange = this.props.shared.dateRange
-
-				// No change
-				if ( ! startDate || ! endDate ) return
-
-				var start = startDate.clone().startOf('day')
-				var end = endDate.clone().endOf('day')
-
-				// No change
-				if (start.isSame(dateRange.start) && end.isSame(dateRange.end)) return
-
-				this.setURLFilter(start, end, this.props.shared.interval)
-				this.setDateRange(start, end)
-			}, 100)
-		}
-	}
 	onDateRangeChange ({ startDate, endDate }) {
-		this.setState({ startDate, endDate })
+		this.setURLFilter(startDate, endDate, this.props.shared.interval)
+		this.setDateRange(startDate, endDate)
 	}
 	onIntervalChange (ev) {
 		var interval = ev.target.value
@@ -135,18 +106,7 @@ class ControlsWidget extends BaseWidget {
 	}
 
 	render () {
-		var shared = this.props.shared
-		var { focusedInput, startDate, endDate } = this.state
-		var today = moment.utc().endOf('day')
-
-		if ( ! startDate) startDate = shared.dateRange.start
-		if ( ! endDate) endDate = shared.dateRange.end
-
-		// Show previous month instead of next one (because we're working with historic data)
-		var initialMonth = startDate.clone().startOf('month')
-		if (initialMonth.isSame(endDate.clone().startOf('month'))) {
-			initialMonth.subtract(1, 'month')
-		}
+		var { interval, dateRange = {} } = this.props.shared
 
 		return (
 			<div class="well well-sm">
@@ -155,23 +115,16 @@ class ControlsWidget extends BaseWidget {
 						<label style={{ display: 'block' }}>Date range</label>
 						<div class="form-control">
 							<DateRangePicker
-								focusedInput={focusedInput}
-								startDate={startDate}
-								endDate={endDate}
-								displayFormat="DD-MM-YYYY"
-								minimumNights={0}
-								initialVisibleMonth={() => initialMonth}
-								isOutsideRange={() => false}
-								isDayBlocked={(date) => date.isAfter(today)}
-								onFocusChange={this.onFocusChange.bind(this)}
-								onDatesChange={this.onDateRangeChange.bind(this)} />
+								startDate={dateRange.start}
+								endDate={dateRange.end}
+								onChange={this.onDateRangeChange.bind(this)} />
 						</div>
 					</div>
 				</div>
 				<div class="col-sm-4">
 					<div class="form-group">
 						<label>Interval</label>
-						<select class="form-control" value={shared.interval} onChange={this.onIntervalChange.bind(this)}>
+						<select class="form-control" value={interval} onChange={this.onIntervalChange.bind(this)}>
 						{this.props.interval.options.map(([ value, label ]) => (
 							<option key={value} value={value}>{label}</option>
 						))}

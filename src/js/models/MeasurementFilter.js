@@ -122,7 +122,7 @@ class MeasurementFilterModel extends BaseModel {
 		return this
 	}
 	addSort (name, order = 1) {
-		if (typeof name !== 'string' || ! name.match(/^[a-zA-Z0-9]+$/)) {
+		if (typeof name !== 'string' || ! name.match(/^[a-zA-Z0-9:]+$/)) {
 			throw new Error('Invalid sorting name.')
 		}
 		if (order !== 1 && order !== -1) {
