@@ -53,9 +53,18 @@ class FilterGraphWidget extends Graph {
 
 		var availableFields = this.getFields(props)
 		var activeField = this.state.activeField
+		var defaultField = props.filter.defaultField
 		var field
-		if (activeField) field = availableFields[activeField]
-		if ( ! field) field = _.first(_.values(availableFields))
+
+		if (activeField) {
+			field = availableFields[activeField]
+		}
+		if ( ! field && defaultField) {
+			field = _.find(availableFields, (field) => field.name === defaultField)
+		}
+		if ( ! field) {
+			field = _.first(_.values(availableFields))
+		}
 
 		return new MeasurementFilterModel()
 			.setGrouped(false)
@@ -225,6 +234,7 @@ var fieldShape = React.PropTypes.shape({
 
 FilterGraphWidget.propTypes = {
 	filter: React.PropTypes.shape({
+		defaultField: React.PropTypes.string,
 		field: fieldShape,
 		fields: React.PropTypes.arrayOf(fieldShape),
 	}).isRequired,
