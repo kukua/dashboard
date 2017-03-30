@@ -1,13 +1,18 @@
 import _ from 'underscore'
+import FileSaver from 'file-saver'
 
 export default (columns, lines, filename = 'data.tsv') => {
-	var data = columns.join('\t') + '\n' + _.map(lines, (line) => line.join('\t')).join('\n')
-	var blob = new Blob([data], { type: 'text/tsv;charset=utf-8;' } )
+	try {
+		var isFileSaverSupported = !! (new Blob)
+	} catch (e) { /* noop */ }
 
-	var elem = window.document.createElement('a')
-	elem.href = window.URL.createObjectURL(blob)
-	elem.download = filename
-	document.body.appendChild(elem)
-	elem.click()
-	document.body.removeChild(elem)
+	if ( ! isFileSaverSupported) return false
+
+	var blob = new Blob(
+		[columns.join('\t') + '\n' + _.map(lines, (line) => line.join('\t')).join('\n')],
+		{ type: 'text/tsv;charset=utf-8;' }
+	)
+	FileSaver.saveAs(blob, filename)
+
+	return true
 }
