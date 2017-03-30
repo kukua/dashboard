@@ -12,9 +12,14 @@ chmod 600 src/js/config.js
 yarn install
 npm start
 
-# Production
+# Staging
 docker-compose run --rm api yarn install
 docker-compose run --rm api npm run build
+docker-compose up -d
+
+# Production
+docker-compose run --rm api yarn install
+docker-compose run --rm api npm run build-prod
 docker-compose up -d
 ```
 
