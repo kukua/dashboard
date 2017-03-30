@@ -9,11 +9,11 @@ cp src/js/config.js.example src/js/config.js
 chmod 600 src/js/config.js
 
 # Development
-npm install
+yarn install
 npm start
 
 # Production
-docker-compose run --rm api npm install
+docker-compose run --rm api yarn install
 docker-compose run --rm api npm run build
 docker-compose up -d
 ```

@@ -1,5 +1,5 @@
 dashboard:
-    image: node:7.4
+    build: .
     working_dir: /data
     ports:
         - 8080:8080

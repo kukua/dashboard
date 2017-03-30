@@ -6,7 +6,7 @@ module.exports = {
 	entry: './src/js/main.js',
 	output: {
 		path: path.resolve(__dirname, 'www'),
-		filename: '/js/main.js'
+		filename: 'js/main.js'
 	},
 	devServer: {
 		inline: true,
