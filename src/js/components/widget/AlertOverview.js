@@ -2,11 +2,11 @@ import _ from 'underscore'
 import titleize from 'underscore.string/titleize'
 import React from 'react'
 import moment from 'moment-timezone'
-import parseDuration from 'parse-duration'
 import { Link } from 'react-router'
 import BaseWidget from './Base'
 import { current as user } from '../../models/User'
 import actions from '../../actions/jobResult'
+import parseDateRange from '../../helpers/parseDateRange'
 
 const columns = {
 	temp: 'temperature',
@@ -30,7 +30,7 @@ class AlertOverviewWidget extends BaseWidget {
 			results: null,
 		})
 
-		actions.fetchByJobID(this.props.fetch.jobID, this.props.fetch.limit)
+		actions.fetchByJobID(this.props.filter.jobID, this.props.filter.dateRange)
 			.then((results) => this.setState({ isLoading: false, results }))
 	}
 	componentWillMount () {
@@ -64,15 +64,7 @@ class AlertOverviewWidget extends BaseWidget {
 
 		if (results.length === 0) return []
 
-		var activeEnd = this.props.active.dateRange.end
-		if (activeEnd === 'now') activeEnd = moment.utc().endOf('day')
-		else activeEnd = moment.utc(activeEnd)
-
-		var activeStart = this.props.active.dateRange.start
-		if (activeStart.startsWith('-')) {
-			activeStart = activeEnd.clone().subtract(parseDuration(activeStart.substr(1)), 'milliseconds')
-		} else activeStart = moment.utc(activeStart)
-
+		var [activeStart, activeEnd] = parseDateRange(this.props.active.dateRange)
 		var types = this.props.types
 		var availableStyles = ['info', 'warning', 'danger']
 		var devices = this.getDevices()
@@ -102,7 +94,6 @@ class AlertOverviewWidget extends BaseWidget {
 			.flatten()
 			.compact()
 			.filter((result) => result.style !== 'hidden')
-			.first(100)
 			.value()
 	}
 	createMessage (type, column, device) {
@@ -140,6 +131,20 @@ class AlertOverviewWidget extends BaseWidget {
 		return { pathname: link.to, query }
 	}
 
+	renderTitle (start, end) {
+		var tillNow = end.isSame(moment().endOf('day'))
+		var title
+
+		if (tillNow) {
+			var days = Math.ceil(end.diff(start, 'days', true))
+			title = `Alerts last ${days} day${days !== 1 ? 's': ''}`
+
+		} else {
+			title = `Alerts between ${start.format('DD-MM-YYYY')} and ${end.format('DD-MM-YYYY')}`
+		}
+
+		return (<h3 style={{ marginTop: 0 }}>{title}</h3>)
+	}
 	render () {
 		if ( ! this.props.shared.deviceGroups || this.state.isLoading) {
 			return (<div>Loading…</div>)
@@ -151,51 +156,94 @@ class AlertOverviewWidget extends BaseWidget {
 		// TODO(mauvm): Add thead, requires translation config for devices and device groups:
 		// e.g. in case of IHS it's sites and regions respectively.
 
+		var columnSize = Math.max(1, Math.floor(12 / _.size(this.props.types)))
+
+		var [start, end] = parseDateRange(this.props.filter.dateRange)
+		var [activeStart, activeEnd] = parseDateRange(this.props.active.dateRange)
+
 		return (
-			<table class="table table-striped table-bordered">
-				<thead>
-					<tr>
-						<th>Timestamp</th>
-						<th>Type</th>
-						<th>Alert</th>
-						<th>Actions</th>
-					</tr>
-				</thead>
-				<tbody>
-				{alerts.length > 0
-					? alerts.map((alert, i) => (
-						<tr key={i} class={alert.active ? alert.style : ''}>
-							<td>{alert.date.format('HH:mm DD-MM-YYYY')}</td>
-							<td>{titleize(alert.type)}</td>
-							<td>{alert.message}</td>
-							{link && (
-								<td width="85px">
-									<Link to={this.createLinkTo(alert)} class="btn btn-default btn-xs pull-right">{link.label}</Link>
-								</td>
-							)}
+			<div>
+				<div class="row">
+					<div class="col-sm-6">
+						{this.renderTitle(activeStart, activeEnd)}
+						<div class="row">
+							{_.map(this.props.types, (type, name) => {
+								var amount = _.filter(alerts, (alert) => alert.active && alert.type === name).length
+								return (
+									<div key={'recent' + name} class={'col-xs-' + columnSize}>
+										<div class={'alert alert-' + type.style}>
+											<div style={{ fontSize: '200%' }}>{amount}</div>
+											{titleize(name.toLowerCase() + (amount !== 1 ? 's' : ''))}
+										</div>
+									</div>
+								)
+							})}
+						</div>
+					</div>
+					<div class="col-sm-6">
+						{this.renderTitle(start, end)}
+						<div class="row">
+							{_.map(this.props.types, (type, name) => {
+								var amount = _.filter(alerts, (alert) => alert.type === name).length
+								return (
+									<div key={'total' + name} class={'col-xs-' + columnSize}>
+										<div class="alert alert-info">
+											<div style={{ fontSize: '200%' }}>{amount}</div>
+											Total {titleize(name.toLowerCase() + (amount !== 1 ? 's' : ''))}
+										</div>
+									</div>
+								)
+							})}
+						</div>
+					</div>
+				</div>
+				<table class="table table-striped table-bordered">
+					<thead>
+						<tr>
+							<th>Timestamp</th>
+							<th>Type</th>
+							<th>Alert</th>
+							<th>Actions</th>
 						</tr>
-					))
-					: <tr><td colSpan={4}>No alerts.</td></tr>
-				}
-				</tbody>
-			</table>
+					</thead>
+					<tbody>
+					{alerts.length > 0
+						? alerts.map((alert, i) => (
+							<tr key={i} class={alert.active ? alert.style : ''}>
+								<td>{alert.date.format('HH:mm DD-MM-YYYY')}</td>
+								<td>{titleize(alert.type)}</td>
+								<td>{alert.message}</td>
+								{link && (
+									<td width="85px">
+										<Link to={this.createLinkTo(alert)} class="btn btn-default btn-xs pull-right">{link.label}</Link>
+									</td>
+								)}
+							</tr>
+						))
+						: <tr><td colSpan={4}>No alerts.</td></tr>
+					}
+					</tbody>
+				</table>
+			</div>
 		)
 	}
 }
+
+const dateRange = React.PropTypes.shape({
+	start: React.PropTypes.string.isRequired,
+	end: React.PropTypes.string.isRequired,
+}).isRequired
 
 AlertOverviewWidget.propTypes = Object.assign({}, BaseWidget.PropTypes, {
 	shared: React.PropTypes.shape({
 		deviceGroups: React.PropTypes.array,
 	}).isRequired,
-	fetch: React.PropTypes.shape({
+	filter: React.PropTypes.shape({
 		jobID: React.PropTypes.string.isRequired,
-		limit: React.PropTypes.number.isRequired,
+		dateRange,
 	}).isRequired,
 	active: React.PropTypes.shape({
-		dateRange: React.PropTypes.shape({
-			start: React.PropTypes.string.isRequired,
-			end: React.PropTypes.string.isRequired,
-		}).isRequired,
+		dateRange,
 	}).isRequired,
 	types: React.PropTypes.object.isRequired,
 	link: React.PropTypes.shape({
