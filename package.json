@@ -6,7 +6,8 @@
   "scripts": {
     "start": "webpack-dev-server",
     "start-prod": "node src/js/server.js",
-    "build": "webpack -p",
+    "build": "webpack",
+    "build-prod": "webpack -p",
     "lint": "eslint src/js/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
