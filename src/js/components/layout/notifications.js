@@ -24,7 +24,15 @@ class NotificationsLayout extends React.Component {
 		}
 	}
 
-	onLogout () {
+	checkLogout (item) {
+		if ( ! item.err.response || item.err.response.status !== 401) {
+			return
+		}
+
+		if (this.context.location.pathname === 'users/login') {
+			return
+		}
+
 		userActions.logout()
 		this.context.router.replace('/users/login')
 	}
@@ -46,9 +54,7 @@ class NotificationsLayout extends React.Component {
 
 			NotificationManager.error(this.formatMessage(item), 'Whoops!')
 
-			if (item.err.response && item.err.response.status === 401) {
-				this.onLogout()
-			}
+			this.checkLogout(item)
 		})
 
 		this.setState({ handled })
@@ -72,7 +78,8 @@ NotificationsLayout.propTypes = {
 	errors: React.PropTypes.array
 }
 NotificationsLayout.contextTypes = {
-	router: React.PropTypes.object.isRequired
+	router: React.PropTypes.object.isRequired,
+	location: React.PropTypes.object.isRequired,
 }
 
 export default connect(
