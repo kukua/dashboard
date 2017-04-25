@@ -2,6 +2,18 @@ import React from 'react'
 import ReactHighcharts from 'react-highcharts'
 import BaseWidget from './Base'
 
+// http://stackoverflow.com/a/17853889/1453912
+ReactHighcharts.Highcharts.dateFormats = {
+	W: function (timestamp) {
+		var date = new Date(timestamp)
+		var day = date.getUTCDay() == 0 ? 7 : date.getUTCDay()
+		var dayNumber
+		date.setDate(date.getUTCDate() + 4 - day)
+		dayNumber = Math.floor((date.getTime() - new Date(date.getUTCFullYear(), 0, 1, -6)) / 86400000)
+		return 1 + Math.floor(dayNumber / 7)
+	}
+}
+
 class GraphWidget extends BaseWidget {
 	constructor () {
 		super()
@@ -87,7 +99,7 @@ class GraphWidget extends BaseWidget {
 					minute: '%H:%M',
 					hour: '%H:%M',
 					day: '%d-%m-%Y',
-					week: 'week %U',
+					week: 'week %W / %Y',
 					month: '%m-%Y',
 					year: '%Y',
 				},
